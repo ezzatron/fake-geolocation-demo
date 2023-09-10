@@ -22,8 +22,19 @@ export default class Map extends Component<Props> {
         style: "mapbox://styles/mapbox/dark-v11",
         center: this.#lngLat,
         zoom: 18,
+
+        boxZoom: false,
+        doubleClickZoom: false,
+        dragPan: false,
+        dragRotate: false,
+        keyboard: false,
+        scrollZoom: { around: "center" },
+        touchPitch: false,
+        touchZoomRotate: { around: "center" },
       });
       this.#map = map;
+
+      map.touchZoomRotate.disableRotation();
 
       map.on("load", () => {
         map.addSource("accuracy", {
