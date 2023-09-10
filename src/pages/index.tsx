@@ -1,7 +1,27 @@
+import { destination } from "@turf/turf";
+import { createWrappedAPIs } from "fake-geolocation";
+import type { BBox } from "geojson";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Map from "../components/Map";
+
+const bbox: BBox = [
+  -74.06457278183707, 40.73088334317342, -74.03501416729776, 40.71368521621004,
+];
+const bestAccuracy = 5;
+const worstAccuracy = 20;
+const speed = 1.5;
+
+const initCoords: GeolocationCoordinates = {
+  longitude: (bbox[0] + bbox[2]) / 2,
+  latitude: (bbox[1] + bbox[3]) / 2,
+  altitude: 0,
+  accuracy: bestAccuracy,
+  altitudeAccuracy: 0,
+  heading: 0,
+  speed,
+};
 
 type Props = {
   mapboxToken: string;
@@ -21,18 +41,87 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
   };
 };
 
-export default function Dashboard({ mapboxToken }: Props) {
+export default function Demo({ mapboxToken }: Props) {
+  const [geolocation, setGeolocation] = useState<Geolocation>();
+  const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
 
+  const coords = useRef<GeolocationCoordinates>(initCoords);
+
   useEffect(() => {
-    const watchId = navigator.geolocation.watchPosition((position) => {
-      setPosition(position);
-    });
+    const { geolocation, isUsingSuppliedAPIs, permissions, selectAPIs, user } =
+      createWrappedAPIs({
+        geolocation: navigator.geolocation,
+        permissions: navigator.permissions,
+        handlePermissionRequest: () => "granted",
+      });
+
+    user.jumpToCoordinates(coords.current);
+
+    setGeolocation(geolocation);
+    setPermissions(permissions);
+
+    const coordsIntervalId = setInterval(() => {
+      const currentHeading = coords.current.heading ?? 0;
+      const heading = (currentHeading + 315 + Math.random() * 90) % 360;
+
+      const {
+        geometry: {
+          coordinates: [longitude, latitude],
+        },
+      } = destination(
+        [coords.current.longitude, coords.current.latitude],
+        speed,
+        heading - 180,
+        { units: "meters" },
+      );
+
+      const accuracy = Math.max(
+        bestAccuracy,
+        Math.min(
+          worstAccuracy,
+          coords.current.accuracy + (Math.random() - 0.5) * 2,
+        ),
+      );
+
+      coords.current = {
+        ...coords.current,
+        longitude,
+        latitude,
+        accuracy,
+        heading,
+        speed,
+      };
+
+      user.jumpToCoordinates(coords.current);
+    }, 1000);
+
+    const switchAPIsIntervalId = setInterval(() => {
+      selectAPIs(!isUsingSuppliedAPIs());
+    }, 15000);
 
     return () => {
-      navigator.geolocation.clearWatch(watchId);
+      clearInterval(coordsIntervalId);
+      clearInterval(switchAPIsIntervalId);
     };
   }, []);
+
+  useEffect(() => {
+    if (!geolocation || !permissions) return;
+
+    const watchId = geolocation.watchPosition(
+      (position) => {
+        setPosition(position);
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+
+    return () => {
+      geolocation.clearWatch(watchId);
+    };
+  }, [geolocation, permissions]);
 
   return (
     <>

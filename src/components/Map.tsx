@@ -1,4 +1,4 @@
-import circle from "@turf/circle";
+import { circle } from "@turf/turf";
 import type { Feature, Point, Polygon } from "geojson";
 import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
