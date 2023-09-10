@@ -1,4 +1,3 @@
-import bbox from "@turf/bbox";
 import circle from "@turf/circle";
 import type { Feature, Point, Polygon } from "geojson";
 import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
@@ -22,10 +21,7 @@ export default class Map extends Component<Props> {
         container,
         style: "mapbox://styles/mapbox/dark-v11",
         center: this.#lngLat,
-        bounds: this.#bounds,
-        fitBoundsOptions: {
-          padding: 64,
-        },
+        zoom: 18,
       });
       this.#map = map;
 
@@ -90,7 +86,6 @@ export default class Map extends Component<Props> {
   componentDidUpdate({ position }: Props): void {
     if (this.props.position !== position) {
       this.#map?.jumpTo({ center: this.#lngLat });
-      this.#map?.fitBounds(this.#bounds, { padding: 64 });
 
       this.#accuracySource?.setData(this.#accuracyFeature);
       this.#positionSource?.setData(this.#positionFeature);
@@ -99,12 +94,6 @@ export default class Map extends Component<Props> {
 
   render() {
     return <div ref={this.#setRef} className={styles.map}></div>;
-  }
-
-  get #bounds(): [number, number, number, number] {
-    const [minX, minY, maxX, maxY] = bbox(this.#accuracyFeature);
-
-    return [minX, minY, maxX, maxY];
   }
 
   get #lngLat(): [number, number] {

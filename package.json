@@ -2,7 +2,6 @@
   "private": true,
   "dependencies": {
     "@next/bundle-analyzer": "^13.4.19",
-    "@turf/bbox": "^6.5.0",
     "@turf/circle": "^6.5.0",
     "fake-geolocation": "^0.2.0",
     "mapbox-gl": "^2.15.0",
