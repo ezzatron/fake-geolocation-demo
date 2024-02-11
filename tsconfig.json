@@ -16,15 +16,15 @@
     "tsBuildInfoFile": "artifacts/tsc/.tsbuildinfo",
     "plugins": [
       {
-        "name": "next",
-      },
-    ],
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "artifacts/next/dist/types/**/*.ts",
+    "artifacts/next/dist/types/**/*.ts"
   ],
-  "exclude": ["artifacts", "node_modules"],
+  "exclude": ["artifacts", "node_modules"]
 }
