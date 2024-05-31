@@ -41,41 +41,41 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
   return {
     coordsAtTime: (t: number) => {
       const i = find(t);
-      const pt1 = positions[i];
+      const p1 = positions[i];
 
-      if (!pt1) return last.coords;
+      if (!p1) return last.coords;
 
-      const pt0 = positions[i - 1];
+      const p0 = positions[i - 1];
 
-      if (!pt0) return pt1.coords;
+      if (!p0) return p1.coords;
 
-      const r = (t - pt0.timestamp) / (pt1.timestamp - pt0.timestamp);
+      const r = (t - p0.timestamp) / (p1.timestamp - p0.timestamp);
 
-      if (r == 1) return pt1.coords;
+      if (r == 1) return p1.coords;
 
-      const ct0 = pt0.coords;
-      const ct1 = pt1.coords;
+      const c0 = p0.coords;
+      const c1 = p1.coords;
 
-      const nv0 = fromGeodeticCoordinates(
-        radians(ct0.latitude),
-        radians(ct0.longitude),
+      const v0 = fromGeodeticCoordinates(
+        radians(c0.latitude),
+        radians(c0.longitude),
       );
-      const nv1 = fromGeodeticCoordinates(
-        radians(ct1.latitude),
-        radians(ct1.longitude),
+      const v1 = fromGeodeticCoordinates(
+        radians(c1.latitude),
+        radians(c1.longitude),
       );
-      const nvi = normalize(apply((nv0, nv1) => lerp(nv0, nv1, r), nv0, nv1));
-      const [latRad, lonRad] = toGeodeticCoordinates(nvi);
+      const nvi = normalize(apply((nv0, nv1) => lerp(nv0, nv1, r), v0, v1));
+      const [lat, lon] = toGeodeticCoordinates(nvi);
 
       return {
-        latitude: degrees(latRad),
-        longitude: degrees(lonRad),
-        altitude: interpolateNullable(lerp, ct0.altitude, ct1.altitude, r),
-        accuracy: lerp(ct0.accuracy, ct1.accuracy, r),
+        latitude: degrees(lat),
+        longitude: degrees(lon),
+        altitude: interpolateNullable(lerp, c0.altitude, c1.altitude, r),
+        accuracy: lerp(c0.accuracy, c1.accuracy, r),
         altitudeAccuracy: interpolateNullable(
           lerp,
-          ct0.altitudeAccuracy,
-          ct1.altitudeAccuracy,
+          c0.altitudeAccuracy,
+          c1.altitudeAccuracy,
           r,
         ),
         heading: null,
