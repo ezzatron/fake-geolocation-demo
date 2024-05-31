@@ -1,4 +1,3 @@
-import type { Feature, Point, Position } from "geojson";
 import {
   apply,
   fromGeodeticCoordinates,
@@ -7,31 +6,34 @@ import {
 } from "nvector-geodesy";
 
 export type Journey = {
-  positionAtRatio: (ratio: number) => Position;
+  coordsAtRatio: (ratio: number) => GeolocationCoordinates;
 };
 
 export function createJourney(
-  {
-    geometry: {
-      coordinates: [aLon, aLat],
-    },
-  }: Feature<Point>,
-  {
-    geometry: {
-      coordinates: [bLon, bLat],
-    },
-  }: Feature<Point>,
+  aCoords: GeolocationCoordinates,
+  bCoords: GeolocationCoordinates,
 ): Journey {
-  const a = fromGeodeticCoordinates(aLat, aLon);
-  const b = fromGeodeticCoordinates(bLat, bLon);
+  const a = fromGeodeticCoordinates(aCoords.longitude, aCoords.latitude);
+  const aAlt = aCoords.altitude ?? 0;
+  const b = fromGeodeticCoordinates(bCoords.longitude, bCoords.latitude);
+  const bAlt = bCoords.altitude ?? 0;
 
   return {
-    positionAtRatio: (ratio: number) => {
-      const [lat, lon] = toGeodeticCoordinates(
+    coordsAtRatio: (ratio: number) => {
+      const [latitude, longitude] = toGeodeticCoordinates(
         normalize(apply((a, b) => a + (b - a) * ratio, a, b)),
       );
+      const altitude = aAlt + (bAlt - aAlt) * ratio;
 
-      return [lon, lat];
+      return {
+        latitude,
+        longitude,
+        altitude,
+        accuracy: 10,
+        altitudeAccuracy: 10,
+        heading: null,
+        speed: null,
+      };
     },
   };
 }

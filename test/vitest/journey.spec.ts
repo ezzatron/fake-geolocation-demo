@@ -7,48 +7,49 @@ describe("createJourney()", () => {
   beforeEach(() => {
     journey = createJourney(
       {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [0, 0],
-        },
-        properties: {
-          time: "2021-01-01T00:00:00Z",
-        },
+        latitude: 0,
+        longitude: 0,
+        altitude: 0,
+        accuracy: 10,
+        altitudeAccuracy: 10,
+        heading: null,
+        speed: null,
       },
       {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [1, 1],
-        },
-        properties: {
-          time: "2021-01-01T00:01:00Z",
-        },
+        latitude: 1,
+        longitude: 1,
+        altitude: 1,
+        accuracy: 10,
+        altitudeAccuracy: 10,
+        heading: null,
+        speed: null,
       },
     );
   });
 
-  describe("positionAtRatio()", () => {
+  describe("coordsAtRatio()", () => {
     it("should return the position at the start of the journey", () => {
-      const position = journey.positionAtRatio(0);
+      const coords = journey.coordsAtRatio(0);
 
-      expect(position[0]).toBeCloseTo(0, 10);
-      expect(position[1]).toBeCloseTo(0, 10);
+      expect(coords.latitude).toBeCloseTo(0, 10);
+      expect(coords.longitude).toBeCloseTo(0, 10);
+      expect(coords.altitude).toBeCloseTo(0, 10);
     });
 
     it("should return the position at the end of the journey", () => {
-      const position = journey.positionAtRatio(1);
+      const coords = journey.coordsAtRatio(1);
 
-      expect(position[0]).toBeCloseTo(1, 10);
-      expect(position[1]).toBeCloseTo(1, 10);
+      expect(coords.latitude).toBeCloseTo(1, 10);
+      expect(coords.longitude).toBeCloseTo(1, 10);
+      expect(coords.altitude).toBeCloseTo(1, 10);
     });
 
     it("should return the position at the middle of the journey", () => {
-      const position = journey.positionAtRatio(0.5);
+      const coords = journey.coordsAtRatio(0.5);
 
-      expect(position[0]).toBeCloseTo(0.33838006814982347, 10);
-      expect(position[1]).toBeCloseTo(0.5509374423857688, 10);
+      expect(coords.latitude).toBeCloseTo(0.5509374423857688, 10);
+      expect(coords.longitude).toBeCloseTo(0.33838006814982347, 10);
+      expect(coords.altitude).toBeCloseTo(0.5, 10);
     });
   });
 });
