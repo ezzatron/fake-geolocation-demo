@@ -11,10 +11,6 @@ export type Journey = {
   coordsAtTime: (ratio: number) => GeolocationCoordinates;
 };
 
-export type Interpolate = (a: number, b: number, t: number) => number;
-
-const lerp: Interpolate = (a, b, t) => a + (b - a) * t;
-
 export function createJourney(...positions: GeolocationPosition[]): Journey {
   if (positions.length < 1) throw new TypeError("No positions provided");
 
@@ -22,11 +18,14 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
   const count = positions.length;
   const last = positions[count - 1];
 
+  // Returns the index of the first position after t, or count if t is after the
+  // last position, using a binary search.
   function find(t: number): number {
     let i = 0;
 
     for (let j = count; i < j; ) {
-      const h = Math.floor(i + (j - i) / 2);
+      // Fast integer division by 2
+      const h = (i + j) >> 1;
 
       if (positions[h].timestamp < t) {
         i = h + 1;
@@ -70,10 +69,9 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
       return {
         longitude: degrees(lon),
         latitude: degrees(lat),
-        altitude: interpolateNullable(lerp, c0.altitude, c1.altitude, r),
+        altitude: lerpNullable(c0.altitude, c1.altitude, r),
         accuracy: lerp(c0.accuracy, c1.accuracy, r),
-        altitudeAccuracy: interpolateNullable(
-          lerp,
+        altitudeAccuracy: lerpNullable(
           c0.altitudeAccuracy,
           c1.altitudeAccuracy,
           r,
@@ -85,11 +83,14 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
   };
 }
 
-function interpolateNullable(
-  i: Interpolate,
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+function lerpNullable(
   a: number | null,
   b: number | null,
   t: number,
 ): number | null {
-  return a == null ? null : b == null ? a : i(a, b, t);
+  return a == null ? null : b == null ? a : a + (b - a) * t;
 }
