@@ -23,10 +23,9 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
   const last = positions[count - 1];
 
   function find(t: number): number {
-    let i = 0,
-      j = count;
+    let i = 0;
 
-    while (i < j) {
+    for (let j = count; i < j; ) {
       const h = Math.floor(i + (j - i) / 2);
 
       if (positions[h].timestamp < t) {
@@ -54,13 +53,16 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
 
       if (r == 1) return pt1.coords;
 
+      const ct0 = pt0.coords;
+      const ct1 = pt1.coords;
+
       const nv0 = fromGeodeticCoordinates(
-        radians(pt0.coords.latitude),
-        radians(pt0.coords.longitude),
+        radians(ct0.latitude),
+        radians(ct0.longitude),
       );
       const nv1 = fromGeodeticCoordinates(
-        radians(pt1.coords.latitude),
-        radians(pt1.coords.longitude),
+        radians(ct1.latitude),
+        radians(ct1.longitude),
       );
       const nvi = normalize(apply((nv0, nv1) => lerp(nv0, nv1, r), nv0, nv1));
       const [latRad, lonRad] = toGeodeticCoordinates(nvi);
@@ -68,17 +70,12 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
       return {
         latitude: degrees(latRad),
         longitude: degrees(lonRad),
-        altitude: interpolateNullable(
-          lerp,
-          pt0.coords.altitude,
-          pt1.coords.altitude,
-          r,
-        ),
-        accuracy: lerp(pt0.coords.accuracy, pt1.coords.accuracy, r),
+        altitude: interpolateNullable(lerp, ct0.altitude, ct1.altitude, r),
+        accuracy: lerp(ct0.accuracy, ct1.accuracy, r),
         altitudeAccuracy: interpolateNullable(
           lerp,
-          pt0.coords.altitudeAccuracy,
-          pt1.coords.altitudeAccuracy,
+          ct0.altitudeAccuracy,
+          ct1.altitudeAccuracy,
           r,
         ),
         heading: null,
