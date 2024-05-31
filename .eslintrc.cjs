@@ -69,23 +69,8 @@ module.exports = {
         "*.test.ts",
         "*.test.tsx",
       ],
-      extends: ["plugin:jest/recommended"],
-      plugins: ["jest"],
-      env: {
-        jest: true,
-      },
-      rules: {
-        // focused tests that make it to CI will cause a build failure
-        "jest/no-focused-tests": "warn",
-
-        // allow custom expect functions
-        "jest/expect-expect": [
-          "warn",
-          {
-            assertFunctionNames: ["expect*"],
-          },
-        ],
-      },
+      extends: ["plugin:vitest/recommended"],
+      plugins: ["vitest"],
     },
   ],
 };
