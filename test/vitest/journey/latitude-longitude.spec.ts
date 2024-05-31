@@ -3,33 +3,31 @@ import { createJourney } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 describe("when latitude is constant", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({ latitude: 90, longitude: -170 }),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({ latitude: 90, longitude: 170 }),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({ latitude: 90, longitude: 70 }),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
   it.each([
-    [25, -170],
-    [50, -170],
-    [75, 180],
-    [100, 170],
-    [125, 150.78973302883216],
-    [150, 120],
-    [175, 89.21026697116784],
-    [200, 70],
-    [225, 70],
+    [-25, -170],
+    [0, -170],
+    [25, 180],
+    [50, 170],
+    [75, 150.78973302883216],
+    [100, 120],
+    [125, 89.21026697116784],
+    [150, 70],
+    [175, 70],
   ])("linearly interpolates the coordinates for time = %s", (t, longitude) => {
     expect(journey.coordsAtTime(t)).toMatchObject({
       latitude: 90,

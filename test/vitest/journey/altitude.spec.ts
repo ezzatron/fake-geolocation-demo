@@ -62,33 +62,31 @@ describe("when no altitude data is present", () => {
 });
 
 describe("when partial altitude data is present", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({ altitude: 10 }),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({ altitude: null }),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({ altitude: 30 }),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
   it.each([
+    [-25, 10],
+    [0, 10],
     [25, 10],
-    [50, 10],
-    [75, 10],
+    [50, null],
+    [75, null],
     [100, null],
     [125, null],
-    [150, null],
-    [175, null],
-    [200, 30],
-    [225, 30],
+    [150, 30],
+    [175, 30],
   ])("doesn't interpolate altitude for time = %s", (t, altitude) => {
     expect(journey.coordsAtTime(t).altitude).toBe(altitude);
   });
