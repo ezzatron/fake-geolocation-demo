@@ -57,19 +57,19 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
       const c1 = p1.coords;
 
       const v0 = fromGeodeticCoordinates(
-        radians(c0.latitude),
         radians(c0.longitude),
+        radians(c0.latitude),
       );
       const v1 = fromGeodeticCoordinates(
-        radians(c1.latitude),
         radians(c1.longitude),
+        radians(c1.latitude),
       );
       const nvi = normalize(apply((nv0, nv1) => lerp(nv0, nv1, r), v0, v1));
-      const [lat, lon] = toGeodeticCoordinates(nvi);
+      const [lon, lat] = toGeodeticCoordinates(nvi);
 
       return {
-        latitude: degrees(lat),
         longitude: degrees(lon),
+        latitude: degrees(lat),
         altitude: interpolateNullable(lerp, c0.altitude, c1.altitude, r),
         accuracy: lerp(c0.accuracy, c1.accuracy, r),
         altitudeAccuracy: interpolateNullable(
