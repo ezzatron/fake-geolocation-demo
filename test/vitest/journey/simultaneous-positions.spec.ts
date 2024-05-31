@@ -26,8 +26,8 @@ describe("when two positions occur at the exact same time", () => {
     expect(journey.coordsAtTime(5).accuracy).toBe(1.5);
   });
 
-  it("returns the first position for the overlapping time", () => {
-    expect(journey.coordsAtTime(10).accuracy).toBe(2);
+  it("returns the last position for the overlapping time", () => {
+    expect(journey.coordsAtTime(10).accuracy).toBe(3);
   });
 
   it("interpolates with the last position after the overlapping time", () => {
