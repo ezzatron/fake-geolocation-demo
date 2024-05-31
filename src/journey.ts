@@ -11,6 +11,10 @@ export type Journey = {
   coordsAtTime: (ratio: number) => GeolocationCoordinates;
 };
 
+export type Interpolate = (a: number, b: number, t: number) => number;
+
+const lerp: Interpolate = (a, b, t) => a + (b - a) * t;
+
 export function createJourney(...positions: GeolocationPosition[]): Journey {
   if (positions.length < 1) throw new TypeError("No positions provided");
 
@@ -64,9 +68,15 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
       return {
         latitude: degrees(latRad),
         longitude: degrees(lonRad),
-        altitude: nullableLerp(pt0.coords.altitude, pt1.coords.altitude, r),
+        altitude: interpolateNullable(
+          lerp,
+          pt0.coords.altitude,
+          pt1.coords.altitude,
+          r,
+        ),
         accuracy: lerp(pt0.coords.accuracy, pt1.coords.accuracy, r),
-        altitudeAccuracy: nullableLerp(
+        altitudeAccuracy: interpolateNullable(
+          lerp,
           pt0.coords.altitudeAccuracy,
           pt1.coords.altitudeAccuracy,
           r,
@@ -78,14 +88,11 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
   };
 }
 
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
-
-function nullableLerp(
+function interpolateNullable(
+  i: Interpolate,
   a: number | null,
   b: number | null,
   t: number,
 ): number | null {
-  return a == null ? null : b == null ? a : a + (b - a) * t;
+  return a == null ? null : b == null ? a : i(a, b, t);
 }
