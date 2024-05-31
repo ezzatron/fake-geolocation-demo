@@ -45,7 +45,6 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
       const pt0 = positions[i - 1];
 
       if (!pt0) return pt1.coords;
-      // TODO: simultaneous positions
 
       const r = (t - pt0.timestamp) / (pt1.timestamp - pt0.timestamp);
 
