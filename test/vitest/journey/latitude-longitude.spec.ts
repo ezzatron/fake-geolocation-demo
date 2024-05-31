@@ -37,33 +37,31 @@ describe("when latitude is constant", () => {
 });
 
 describe("when longitude is constant", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({ latitude: 70, longitude: 180 }),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({ latitude: 80, longitude: 180 }),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({ latitude: 90, longitude: 180 }),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
   it.each([
-    [25, 70],
-    [50, 70],
-    [75, 75],
-    [100, 80],
-    [125, 82.4952312784634],
-    [150, 85],
-    [175, 87.5047687215366],
-    [200, 90],
-    [225, 90],
+    [-25, 70],
+    [0, 70],
+    [25, 75],
+    [50, 80],
+    [75, 82.4952312784634],
+    [100, 85],
+    [125, 87.5047687215366],
+    [150, 90],
+    [175, 90],
   ])("linearly interpolates the coordinates for time = %s", (t, latitude) => {
     expect(journey.coordsAtTime(t)).toMatchObject({
       latitude: expect.closeTo(latitude, 10) as number,

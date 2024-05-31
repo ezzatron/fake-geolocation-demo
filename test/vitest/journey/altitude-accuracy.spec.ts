@@ -34,24 +34,22 @@ describe("when altitude accuracy data is present", () => {
 });
 
 describe("when no altitude accuracy data is present", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({}),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({}),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({}),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
-  it.each([[25], [50], [75], [100], [125], [150], [175], [200], [225]])(
+  it.each([[-25], [0], [25], [50], [75], [100], [125], [150], [175]])(
     "returns null for time = %s",
     (t) => {
       expect(journey.coordsAtTime(t).altitudeAccuracy).toBeNull();
@@ -60,33 +58,31 @@ describe("when no altitude accuracy data is present", () => {
 });
 
 describe("when partial altitude accuracy data is present", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({ altitudeAccuracy: 10 }),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({ altitudeAccuracy: null }),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({ altitudeAccuracy: 30 }),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
   it.each([
+    [-25, 10],
+    [0, 10],
     [25, 10],
-    [50, 10],
-    [75, 10],
+    [50, null],
+    [75, null],
     [100, null],
     [125, null],
-    [150, null],
-    [175, null],
-    [200, 30],
-    [225, 30],
+    [150, 30],
+    [175, 30],
   ])("doesn't interpolate altitudeAccuracy for time = %s", (t, accuracy) => {
     expect(journey.coordsAtTime(t).altitudeAccuracy).toBe(accuracy);
   });

@@ -3,57 +3,53 @@ import { createJourney } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 describe("when altitude data is present", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({ altitude: 10 }),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({ altitude: -20 }),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({ altitude: 30 }),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
   it.each([
-    [25, 10],
-    [50, 10],
-    [75, -5],
-    [100, -20],
-    [125, -7.5],
-    [150, 5],
-    [175, 17.5],
-    [200, 30],
-    [225, 30],
+    [-25, 10],
+    [0, 10],
+    [25, -5],
+    [50, -20],
+    [75, -7.5],
+    [100, 5],
+    [125, 17.5],
+    [150, 30],
+    [175, 30],
   ])("linearly interpolates altitude for time = %s", (t, altitude) => {
     expect(journey.coordsAtTime(t).altitude).toBe(altitude);
   });
 });
 
 describe("when no altitude data is present", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({}),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({}),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({}),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
-  it.each([[25], [50], [75], [100], [125], [150], [175], [200], [225]])(
+  it.each([[-25], [0], [25], [50], [75], [100], [125], [150], [175]])(
     "returns null for time = %s",
     (t) => {
       expect(journey.coordsAtTime(t).altitude).toBeNull();
