@@ -1,7 +1,9 @@
 import {
   apply,
+  degrees,
   fromGeodeticCoordinates,
   normalize,
+  radians,
   toGeodeticCoordinates,
 } from "nvector-geodesy";
 
@@ -9,38 +11,80 @@ export type Journey = {
   coordsAtTime: (ratio: number) => GeolocationCoordinates;
 };
 
-export function createJourney(
-  a: GeolocationPosition,
-  b: GeolocationPosition,
-): Journey {
+export function createJourney(...positions: GeolocationPosition[]): Journey {
+  if (positions.length < 1) throw new TypeError("No positions provided");
+
+  positions.sort(({ timestamp: a }, { timestamp: b }) => a - b);
+  const count = positions.length;
+  const last = positions[count - 1];
+
+  function find(t: number): number {
+    let i = 0,
+      j = count;
+
+    while (i < j) {
+      const h = Math.floor(i + (j - i) / 2);
+
+      if (positions[h].timestamp < t) {
+        i = h + 1;
+      } else {
+        j = h;
+      }
+    }
+
+    return i;
+  }
+
   return {
     coordsAtTime: (t: number) => {
-      const aNV = fromGeodeticCoordinates(
-        a.coords.longitude,
-        a.coords.latitude,
-      );
-      const aAlt = a.coords.altitude ?? 0;
-      const bNV = fromGeodeticCoordinates(
-        b.coords.longitude,
-        b.coords.latitude,
-      );
-      const bAlt = b.coords.altitude ?? 0;
+      const i = find(t);
+      const pt1 = positions[i];
 
-      const ratio = (t - a.timestamp) / (b.timestamp - a.timestamp);
-      const [latitude, longitude] = toGeodeticCoordinates(
-        normalize(apply((a, b) => a + (b - a) * ratio, aNV, bNV)),
+      if (!pt1) return last.coords;
+
+      const pt0 = positions[i - 1];
+
+      if (!pt0) return pt1.coords;
+      // TODO: simultaneous positions
+
+      const r = (t - pt0.timestamp) / (pt1.timestamp - pt0.timestamp);
+
+      const nv0 = fromGeodeticCoordinates(
+        radians(pt0.coords.latitude),
+        radians(pt0.coords.longitude),
       );
-      const altitude = aAlt + (bAlt - aAlt) * ratio;
+      const nv1 = fromGeodeticCoordinates(
+        radians(pt1.coords.latitude),
+        radians(pt1.coords.longitude),
+      );
+      const nvi = normalize(apply((nv0, nv1) => lerp(nv0, nv1, r), nv0, nv1));
+      const [latRad, lonRad] = toGeodeticCoordinates(nvi);
 
       return {
-        latitude,
-        longitude,
-        altitude,
-        accuracy: 10,
-        altitudeAccuracy: 10,
+        latitude: degrees(latRad),
+        longitude: degrees(lonRad),
+        altitude: lerp(pt0.coords.altitude!, pt1.coords.altitude!, r),
+        accuracy: lerp(pt0.coords.accuracy, pt1.coords.accuracy, r),
+        altitudeAccuracy: lerp(
+          pt0.coords.altitudeAccuracy!,
+          pt1.coords.altitudeAccuracy!,
+          r,
+        ),
         heading: null,
         speed: null,
       };
     },
   };
 }
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+// function nullableLerp(
+//   a: number | null,
+//   b: number | null,
+//   t: number,
+// ): number | null {
+//   return a === null ? null : b === null ? a : a + (b - a) * t;
+// }
