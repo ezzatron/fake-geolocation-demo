@@ -49,6 +49,8 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
 
       const r = (t - pt0.timestamp) / (pt1.timestamp - pt0.timestamp);
 
+      if (r == 1) return pt1.coords;
+
       const nv0 = fromGeodeticCoordinates(
         radians(pt0.coords.latitude),
         radians(pt0.coords.longitude),
@@ -63,11 +65,11 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
       return {
         latitude: degrees(latRad),
         longitude: degrees(lonRad),
-        altitude: lerp(pt0.coords.altitude!, pt1.coords.altitude!, r),
+        altitude: nullableLerp(pt0.coords.altitude, pt1.coords.altitude, r),
         accuracy: lerp(pt0.coords.accuracy, pt1.coords.accuracy, r),
-        altitudeAccuracy: lerp(
-          pt0.coords.altitudeAccuracy!,
-          pt1.coords.altitudeAccuracy!,
+        altitudeAccuracy: nullableLerp(
+          pt0.coords.altitudeAccuracy,
+          pt1.coords.altitudeAccuracy,
           r,
         ),
         heading: null,
@@ -81,10 +83,10 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-// function nullableLerp(
-//   a: number | null,
-//   b: number | null,
-//   t: number,
-// ): number | null {
-//   return a === null ? null : b === null ? a : a + (b - a) * t;
-// }
+function nullableLerp(
+  a: number | null,
+  b: number | null,
+  t: number,
+): number | null {
+  return a == null ? null : b == null ? a : a + (b - a) * t;
+}
