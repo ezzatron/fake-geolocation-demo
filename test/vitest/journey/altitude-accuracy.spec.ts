@@ -3,33 +3,31 @@ import { createJourney } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 describe("when altitude accuracy data is present", () => {
-  let t = 50;
-
   const journey = createJourney(
     {
       coords: createCoordinates({ altitudeAccuracy: 10 }),
-      timestamp: (t += 0), // 50
+      timestamp: 0,
     },
     {
       coords: createCoordinates({ altitudeAccuracy: 20 }),
-      timestamp: (t += 50), // 100
+      timestamp: 50,
     },
     {
       coords: createCoordinates({ altitudeAccuracy: 30 }),
-      timestamp: (t += 100), // 200
+      timestamp: 150,
     },
   );
 
   it.each([
-    [25, 10],
-    [50, 10],
-    [75, 15],
-    [100, 20],
-    [125, 22.5],
-    [150, 25],
-    [175, 27.5],
-    [200, 30],
-    [225, 30],
+    [-25, 10],
+    [0, 10],
+    [25, 15],
+    [50, 20],
+    [75, 22.5],
+    [100, 25],
+    [125, 27.5],
+    [150, 30],
+    [175, 30],
   ])("linearly interpolates altitudeAccuracy for time = %s", (t, accuracy) => {
     expect(journey.coordsAtTime(t).altitudeAccuracy).toBe(accuracy);
   });
