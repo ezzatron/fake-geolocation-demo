@@ -19,7 +19,9 @@ export type Journey = {
 export function createJourney(...positions: GeolocationPosition[]): Journey {
   if (positions.length < 1) throw new TypeError("No positions provided");
 
-  positions.sort(({ timestamp: a }, { timestamp: b }) => a - b);
+  positions = positions
+    .sort(({ timestamp: a }, { timestamp: b }) => a - b)
+    .map((p) => ({ ...p, coords: { ...p.coords, heading: NaN, speed: 0 } }));
   const count = positions.length;
   const last = positions[count - 1];
 
@@ -47,23 +49,23 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
       const i = find(t);
       const p1 = positions[i];
 
-      if (!p1) return stationary(last.coords);
+      if (!p1) return last.coords;
 
       const p0 = positions[i - 1];
 
-      if (!p0) return stationary(p1.coords);
+      if (!p0) return p1.coords;
 
-      // delta time
+      // Total leg time
       const dt = p1.timestamp - p0.timestamp;
       const dts = dt / 1000;
 
+      // Leg completion ratio
       const r = (t - p0.timestamp) / dt;
-
-      if (r == 1) return stationary(p1.coords);
 
       const c0 = p0.coords;
       const c1 = p1.coords;
 
+      // Position n-vectors
       const v0 = fromGeodeticCoordinates(
         radians(c0.longitude),
         radians(c0.latitude),
@@ -93,7 +95,7 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
           c1.altitudeAccuracy,
           r,
         ),
-        heading: degrees(az),
+        heading: (degrees(az) + 360) % 360,
         speed: dist / dts,
       };
     },
@@ -110,12 +112,4 @@ function lerpNullable(
   t: number,
 ): number | null {
   return a == null ? null : b == null ? a : a + (b - a) * t;
-}
-
-function stationary(c: GeolocationCoordinates): GeolocationCoordinates {
-  return {
-    ...c,
-    heading: null,
-    speed: 0,
-  };
 }
