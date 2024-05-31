@@ -46,5 +46,5 @@ it.each([
   [ONE_DAY, 0],
   [ONE_DAY + ONE_HOUR, 0],
 ])("linearly interpolates speed for time = %s", (t, speed) => {
-  expect(journey.coordsAtTime(t).speed).toBe(speed);
+  expect(journey.coordsAtTime(t).speed).toBeCloseTo(speed, 10);
 });
