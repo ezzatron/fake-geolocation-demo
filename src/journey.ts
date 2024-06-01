@@ -1,3 +1,4 @@
+import type { Feature, GeoJsonProperties, LineString } from "geojson";
 import {
   apply,
   degrees,
@@ -102,4 +103,49 @@ function lerpNullable(
   t: number,
 ): number | null {
   return a == null ? null : b == null ? a : a + (b - a) * t;
+}
+
+export type GeoJSONPropertiesWithCoordinateProperties =
+  NonNullable<GeoJsonProperties> & {
+    coordinateProperties: {
+      times: (number | string | null)[];
+    };
+  };
+
+export type GeoJSONJourney = Feature<
+  LineString,
+  GeoJSONPropertiesWithCoordinateProperties
+>;
+
+export function createJourneyFromGeoJSON({
+  geometry: { coordinates },
+  properties: {
+    coordinateProperties: { times },
+  },
+}: GeoJSONJourney): Journey {
+  const positions: GeolocationPosition[] = [];
+
+  for (let i = 0; i < coordinates.length; ++i) {
+    const time = times[i];
+
+    // Skip positions without a time
+    if (time == null) continue;
+
+    const [longitude, latitude, altitude] = coordinates[i];
+
+    positions.push({
+      coords: {
+        longitude,
+        latitude,
+        altitude,
+        accuracy: 0,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      },
+      timestamp: new Date(time).getTime(),
+    });
+  }
+
+  return createJourney(...positions);
 }
