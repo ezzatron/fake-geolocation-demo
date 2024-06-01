@@ -28,5 +28,5 @@ it.each([
   [150, 30],
   [175, 30],
 ])("linearly interpolates accuracy for time = %s", (t, accuracy) => {
-  expect(journey.coordsAtTime(t).accuracy).toBe(accuracy);
+  expect(journey.coordinatesAtTime(t).accuracy).toBe(accuracy);
 });

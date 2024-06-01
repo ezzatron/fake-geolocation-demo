@@ -29,7 +29,7 @@ describe("when altitude accuracy data is present", () => {
     [150, 30],
     [175, 30],
   ])("linearly interpolates altitudeAccuracy for time = %s", (t, accuracy) => {
-    expect(journey.coordsAtTime(t).altitudeAccuracy).toBe(accuracy);
+    expect(journey.coordinatesAtTime(t).altitudeAccuracy).toBe(accuracy);
   });
 });
 
@@ -52,7 +52,7 @@ describe("when no altitude accuracy data is present", () => {
   it.each([[-25], [0], [25], [50], [75], [100], [125], [150], [175]])(
     "returns null for time = %s",
     (t) => {
-      expect(journey.coordsAtTime(t).altitudeAccuracy).toBeNull();
+      expect(journey.coordinatesAtTime(t).altitudeAccuracy).toBeNull();
     },
   );
 });
@@ -84,6 +84,6 @@ describe("when partial altitude accuracy data is present", () => {
     [150, 30],
     [175, 30],
   ])("doesn't interpolate altitudeAccuracy for time = %s", (t, accuracy) => {
-    expect(journey.coordsAtTime(t).altitudeAccuracy).toBe(accuracy);
+    expect(journey.coordinatesAtTime(t).altitudeAccuracy).toBe(accuracy);
   });
 });
