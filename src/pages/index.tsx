@@ -1,27 +1,15 @@
-import { destination } from "@turf/turf";
 import { createWrappedAPIs } from "fake-geolocation";
-import type { BBox } from "geojson";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import Map from "../components/Map";
+import { createJourneyFromGeoJSON, type GeoJSONJourney } from "../journey";
+import journeyJSON from "../journey.json";
 
-const bbox: BBox = [
-  -74.06457278183707, 40.73088334317342, -74.03501416729776, 40.71368521621004,
-];
-const bestAccuracy = 5;
-const worstAccuracy = 20;
-const speed = 1.5;
-
-const initCoords: GeolocationCoordinates = {
-  longitude: (bbox[0] + bbox[2]) / 2,
-  latitude: (bbox[1] + bbox[3]) / 2,
-  altitude: 0,
-  accuracy: bestAccuracy,
-  altitudeAccuracy: 0,
-  heading: 0,
-  speed,
-};
+const journey = createJourneyFromGeoJSON(journeyJSON as GeoJSONJourney);
+const journeyStartTime = new Date(
+  journeyJSON.properties.coordinateProperties.times[225],
+).getTime();
 
 type Props = {
   mapboxToken: string;
@@ -45,8 +33,7 @@ export default function Demo({ mapboxToken }: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
-
-  const coords = useRef<GeolocationCoordinates>(initCoords);
+  const journeyTime = useRef(journeyStartTime);
 
   useEffect(() => {
     const { geolocation, isUsingSuppliedAPIs, permissions, selectAPIs, user } =
@@ -56,45 +43,19 @@ export default function Demo({ mapboxToken }: Props) {
         handlePermissionRequest: () => "granted",
       });
 
-    user.jumpToCoordinates(coords.current);
+    user.jumpToCoordinates(journey.coordinatesAtTime(journeyStartTime));
 
     setGeolocation(geolocation);
     setPermissions(permissions);
 
     const coordsIntervalId = setInterval(() => {
-      const currentHeading = coords.current.heading ?? 0;
-      const heading = (currentHeading + 315 + Math.random() * 90) % 360;
+      const coords = journey.coordinatesAtTime((journeyTime.current += 100));
+      user.jumpToCoordinates(coords);
 
-      const {
-        geometry: {
-          coordinates: [longitude, latitude],
-        },
-      } = destination(
-        [coords.current.longitude, coords.current.latitude],
-        speed,
-        heading - 180,
-        { units: "meters" },
-      );
+      const { altitude, heading, speed } = coords;
 
-      const accuracy = Math.max(
-        bestAccuracy,
-        Math.min(
-          worstAccuracy,
-          coords.current.accuracy + (Math.random() - 0.5) * 2,
-        ),
-      );
-
-      coords.current = {
-        ...coords.current,
-        longitude,
-        latitude,
-        accuracy,
-        heading,
-        speed,
-      };
-
-      user.jumpToCoordinates(coords.current);
-    }, 1000);
+      console.log({ altitude, heading, speed });
+    }, 100);
 
     const switchAPIsIntervalId = setInterval(() => {
       selectAPIs(!isUsingSuppliedAPIs());
