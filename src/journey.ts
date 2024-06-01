@@ -13,96 +13,86 @@ import {
 } from "nvector-geodesy";
 
 export type Journey = {
-  coordsAtTime: (ratio: number) => GeolocationCoordinates;
+  coordinatesAtTime: (time: number) => GeolocationCoordinates;
 };
 
 export function createJourney(...positions: GeolocationPosition[]): Journey {
   if (positions.length < 1) throw new TypeError("No positions provided");
 
+  // Sort by time, make copies, and strip headings and speeds
   positions = positions
     .sort(({ timestamp: a }, { timestamp: b }) => a - b)
     .map((p) => ({ ...p, coords: { ...p.coords, heading: NaN, speed: 0 } }));
   const count = positions.length;
   const last = positions[count - 1];
 
-  // Returns the index of the first position after t, or count if t is after the
-  // last position, using a binary search.
-  function find(t: number): number {
-    let i = 0;
-
-    for (let j = count; i < j; ) {
-      // Fast integer division by 2
-      const h = (i + j) >> 1;
-
-      if (positions[h].timestamp <= t) {
-        i = h + 1;
-      } else {
-        j = h;
-      }
-    }
-
-    return i;
-  }
-
   return {
-    coordsAtTime: (t: number) => {
-      const i = find(t);
-      const p1 = positions[i];
+    coordinatesAtTime: (time) => {
+      // Find the index of the first position after t, or count if t is after the
+      // last position, using a binary search.
+      let idx = 0;
 
-      if (!p1) return last.coords;
+      for (let j = count; idx < j; ) {
+        // Fast integer division by 2
+        const h = (idx + j) >> 1;
 
-      const p0 = positions[i - 1];
+        if (positions[h].timestamp <= time) {
+          idx = h + 1;
+        } else {
+          j = h;
+        }
+      }
 
-      if (!p0) return p1.coords;
+      const b = positions[idx];
 
-      // Total leg time
-      const dt = p1.timestamp - p0.timestamp;
-      const dts = dt / 1000;
+      if (!b) return last.coords;
 
-      // Leg completion ratio
-      const r = (t - p0.timestamp) / dt;
+      const a = positions[idx - 1];
 
-      const c0 = p0.coords;
-      const c1 = p1.coords;
+      if (!a) return b.coords;
+
+      const t = (time - a.timestamp) / (b.timestamp - a.timestamp);
+      const ca = a.coords;
+      const cb = b.coords;
 
       // Position n-vectors
-      const v0 = fromGeodeticCoordinates(
-        radians(c0.longitude),
-        radians(c0.latitude),
+      const va = fromGeodeticCoordinates(
+        radians(ca.longitude),
+        radians(ca.latitude),
       );
-      const v1 = fromGeodeticCoordinates(
-        radians(c1.longitude),
-        radians(c1.latitude),
+      const vb = fromGeodeticCoordinates(
+        radians(cb.longitude),
+        radians(cb.latitude),
       );
 
       // From n-vector example 6, interpolated position
-      const nvi = normalize(apply((nv0, nv1) => lerp(nv0, nv1, r), v0, v1));
-      const [lon, lat] = toGeodeticCoordinates(nvi);
+      const vi = normalize(apply((va, vb) => lerp(va, vb, t), va, vb));
+      const [lon, lat] = toGeodeticCoordinates(vi);
 
       // From n-vector example 1, A and B to delta
-      const d = delta(v0, v1, -(c0.altitude ?? -0), -(c1.altitude ?? -0));
-      const [north, east] = transform(transpose(toRotationMatrix(v0)), d);
+      const d = delta(va, vb, -(ca.altitude ?? -0), -(cb.altitude ?? -0));
+      const [north, east] = transform(transpose(toRotationMatrix(va)), d);
       const az = Math.atan2(east, north);
       const dist = norm(d);
 
       return {
         longitude: degrees(lon),
         latitude: degrees(lat),
-        accuracy: lerp(c0.accuracy, c1.accuracy, r),
-        altitude: lerpNullable(c0.altitude, c1.altitude, r),
+        accuracy: lerp(ca.accuracy, cb.accuracy, t),
+        altitude: lerpNullable(ca.altitude, cb.altitude, t),
         altitudeAccuracy: lerpNullable(
-          c0.altitudeAccuracy,
-          c1.altitudeAccuracy,
-          r,
+          ca.altitudeAccuracy,
+          cb.altitudeAccuracy,
+          t,
         ),
         heading: (degrees(az) + 360) % 360,
-        speed: dist / dts,
+        speed: dist / ((b.timestamp - a.timestamp) / 1000),
       };
     },
   };
 }
 
-function lerp(a: number, b: number, t: number) {
+function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 

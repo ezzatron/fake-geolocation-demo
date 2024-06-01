@@ -23,14 +23,14 @@ describe("when two positions occur at the exact same time", () => {
   );
 
   it("interpolates with the first position before the overlapping time", () => {
-    expect(journey.coordsAtTime(5).accuracy).toBe(1.5);
+    expect(journey.coordinatesAtTime(5).accuracy).toBe(1.5);
   });
 
   it("returns the last position for the overlapping time", () => {
-    expect(journey.coordsAtTime(10).accuracy).toBe(3);
+    expect(journey.coordinatesAtTime(10).accuracy).toBe(3);
   });
 
   it("interpolates with the last position after the overlapping time", () => {
-    expect(journey.coordsAtTime(15).accuracy).toBe(3.5);
+    expect(journey.coordinatesAtTime(15).accuracy).toBe(3.5);
   });
 });
