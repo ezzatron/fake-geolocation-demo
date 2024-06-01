@@ -35,22 +35,22 @@ it("creates a journey from GeoJSON", () => {
   expect(
     journey.coordinatesAtTime(new Date("2002-03-09T16:19:57Z").getTime()),
   ).toMatchObject({
-    longitude: -71.265993,
-    latitude: 42.049785,
-    altitude: 47.241821,
+    longitude: expect.closeTo(-71.265993, 8) as number,
+    latitude: expect.closeTo(42.049785, 8) as number,
+    altitude: expect.closeTo(47.241821, 8) as number,
   });
   expect(
     journey.coordinatesAtTime(new Date("2002-03-09T16:22:07Z").getTime()),
   ).toMatchObject({
-    longitude: -71.265929,
-    latitude: 42.049656,
-    altitude: 61.18103,
+    longitude: expect.closeTo(-71.265929, 8) as number,
+    latitude: expect.closeTo(42.049656, 8) as number,
+    altitude: expect.closeTo(61.18103, 8) as number,
   });
   expect(
     journey.coordinatesAtTime(new Date("2002-03-09T16:22:27Z").getTime()),
   ).toMatchObject({
-    longitude: -71.266165,
-    latitude: 42.049677,
-    altitude: 62.142334,
+    longitude: expect.closeTo(-71.266165, 8) as number,
+    latitude: expect.closeTo(42.049677, 8) as number,
+    altitude: expect.closeTo(62.142334, 8) as number,
   });
 });
