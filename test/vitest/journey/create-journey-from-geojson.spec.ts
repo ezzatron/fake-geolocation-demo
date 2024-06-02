@@ -32,23 +32,21 @@ const geoJSON: GeoJSONJourney = {
 it("creates a journey from GeoJSON", () => {
   const journey = createJourneyFromGeoJSON(geoJSON);
 
-  expect(
-    journey.coordinatesAtTime(new Date("2002-03-09T16:19:57Z").getTime()),
-  ).toMatchObject({
+  const timeA = new Date("2002-03-09T16:19:57Z").getTime();
+  const timeB = new Date("2002-03-09T16:22:07Z").getTime();
+  const timeC = new Date("2002-03-09T16:22:27Z").getTime();
+
+  expect(journey.coordinatesAtOffset(0)).toMatchObject({
     longitude: expect.closeTo(-71.265993, 8) as number,
     latitude: expect.closeTo(42.049785, 8) as number,
     altitude: expect.closeTo(47.241821, 8) as number,
   });
-  expect(
-    journey.coordinatesAtTime(new Date("2002-03-09T16:22:07Z").getTime()),
-  ).toMatchObject({
+  expect(journey.coordinatesAtOffset(timeB - timeA)).toMatchObject({
     longitude: expect.closeTo(-71.265929, 8) as number,
     latitude: expect.closeTo(42.049656, 8) as number,
     altitude: expect.closeTo(61.18103, 8) as number,
   });
-  expect(
-    journey.coordinatesAtTime(new Date("2002-03-09T16:22:27Z").getTime()),
-  ).toMatchObject({
+  expect(journey.coordinatesAtOffset(timeC - timeA)).toMatchObject({
     longitude: expect.closeTo(-71.266165, 8) as number,
     latitude: expect.closeTo(42.049677, 8) as number,
     altitude: expect.closeTo(62.142334, 8) as number,

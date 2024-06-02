@@ -7,9 +7,6 @@ import { createJourneyFromGeoJSON, type GeoJSONJourney } from "../journey";
 import journeyJSON from "../journey.json";
 
 const journey = createJourneyFromGeoJSON(journeyJSON as GeoJSONJourney);
-const journeyStartTime = new Date(
-  journeyJSON.properties.coordinateProperties.times[225],
-).getTime();
 
 type Props = {
   mapboxToken: string;
@@ -33,7 +30,7 @@ export default function Demo({ mapboxToken }: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
-  const journeyTime = useRef(journeyStartTime);
+  const journeyTime = useRef(0);
 
   useEffect(() => {
     const { geolocation, isUsingSuppliedAPIs, permissions, selectAPIs, user } =
@@ -43,13 +40,13 @@ export default function Demo({ mapboxToken }: Props) {
         handlePermissionRequest: () => "granted",
       });
 
-    user.jumpToCoordinates(journey.coordinatesAtTime(journeyStartTime));
+    user.jumpToCoordinates(journey.coordinatesAtOffset(journeyTime.current));
 
     setGeolocation(geolocation);
     setPermissions(permissions);
 
     const coordsIntervalId = setInterval(() => {
-      const coords = journey.coordinatesAtTime((journeyTime.current += 100));
+      const coords = journey.coordinatesAtOffset((journeyTime.current += 100));
       user.jumpToCoordinates(coords);
 
       const { altitude, heading, speed } = coords;

@@ -29,7 +29,7 @@ describe("when altitude data is present", () => {
     [150, 30],
     [175, 30],
   ])("linearly interpolates altitude for time = %s", (t, altitude) => {
-    expect(journey.coordinatesAtTime(t).altitude).toBe(altitude);
+    expect(journey.coordinatesAtOffset(t).altitude).toBe(altitude);
   });
 });
 
@@ -52,7 +52,7 @@ describe("when no altitude data is present", () => {
   it.each([[-25], [0], [25], [50], [75], [100], [125], [150], [175]])(
     "returns null for time = %s",
     (t) => {
-      expect(journey.coordinatesAtTime(t).altitude).toBeNull();
+      expect(journey.coordinatesAtOffset(t).altitude).toBeNull();
     },
   );
 });
@@ -84,6 +84,6 @@ describe("when partial altitude data is present", () => {
     [150, 30],
     [175, 30],
   ])("doesn't interpolate altitude for time = %s", (t, altitude) => {
-    expect(journey.coordinatesAtTime(t).altitude).toBe(altitude);
+    expect(journey.coordinatesAtOffset(t).altitude).toBe(altitude);
   });
 });

@@ -30,7 +30,7 @@ it.each([
 ])(
   "linearly interpolates the coordinates for time = %s",
   (t, longitude, latitude) => {
-    expect(journey.coordinatesAtTime(t)).toMatchObject({
+    expect(journey.coordinatesAtOffset(t)).toMatchObject({
       longitude: expect.closeTo(longitude, 10) as number,
       latitude: expect.closeTo(latitude, 10) as number,
     });

@@ -29,8 +29,8 @@ it.each([
   [175, NaN],
 ])("linearly interpolates heading for time = %s", (t, heading) => {
   if (Number.isNaN(heading)) {
-    expect(journey.coordinatesAtTime(t).heading).toBeNaN();
+    expect(journey.coordinatesAtOffset(t).heading).toBeNaN();
   } else {
-    expect(journey.coordinatesAtTime(t).heading).toBeCloseTo(heading, 10);
+    expect(journey.coordinatesAtOffset(t).heading).toBeCloseTo(heading, 10);
   }
 });
