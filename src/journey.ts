@@ -14,7 +14,7 @@ import {
 } from "nvector-geodesy";
 
 export type Journey = {
-  coordinatesAtTime: (time: number) => GeolocationCoordinates;
+  coordinatesAtOffset: (offsetTime: number) => GeolocationCoordinates;
 };
 
 export function createJourney(...positions: GeolocationPosition[]): Journey {
@@ -25,10 +25,15 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
     .sort(({ timestamp: a }, { timestamp: b }) => a - b)
     .map((p) => ({ ...p, coords: { ...p.coords, heading: NaN, speed: 0 } }));
   const count = positions.length;
+  const first = positions[0];
   const last = positions[count - 1];
 
+  const startTime = first.timestamp;
+
   return {
-    coordinatesAtTime: (time) => {
+    coordinatesAtOffset: (offsetTime) => {
+      const time = startTime + offsetTime;
+
       // Find the index of the first position after t, or count if t is after the
       // last position, using a binary search.
       let idx = 0;
