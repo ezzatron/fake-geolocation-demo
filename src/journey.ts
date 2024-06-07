@@ -14,14 +14,13 @@ import {
 } from "nvector-geodesy";
 
 export type Journey = {
+  readonly positions: [
+    GeolocationPosition,
+    GeolocationPosition,
+    ...GeolocationPosition[],
+  ];
   readonly startPosition: GeolocationPosition;
   readonly endPosition: GeolocationPosition;
-  boundingBox: () => [
-    minimumLongitude: number,
-    minimumLatitude: number,
-    maximumLongitude: number,
-    maximumLatitude: number,
-  ];
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
 };
@@ -35,13 +34,13 @@ export type JourneySegmentWithT = [
 ];
 
 export function createJourney(
-  a: GeolocationPosition,
-  b: GeolocationPosition,
-  ...additional: GeolocationPosition[]
+  ...positions: [
+    GeolocationPosition,
+    GeolocationPosition,
+    ...GeolocationPosition[],
+  ]
 ): Journey {
-  const positions = [a, b, ...additional].sort(
-    ({ timestamp: a }, { timestamp: b }) => a - b,
-  );
+  positions.sort(({ timestamp: a }, { timestamp: b }) => a - b);
 
   const count = positions.length;
   const startPosition = positions[0];
@@ -77,47 +76,9 @@ export function createJourney(
   };
 
   return {
+    positions,
     startPosition,
     endPosition,
-
-    boundingBox() {
-      // From https://stackoverflow.com/a/58859132/736156
-      const lons = positions
-        .map(({ coords: { longitude } }) => longitude)
-        .sort((a, b) => a - b);
-
-      let w = NaN,
-        s = Infinity,
-        e = NaN,
-        n = -Infinity,
-        maxD = -Infinity;
-
-      for (let i = 0; i < count; ++i) {
-        const lat = positions[i].coords.latitude;
-
-        if (lat < s) s = lat;
-        if (lat > n) n = lat;
-
-        const j = (i + 1) % count;
-
-        const lon = lons[i];
-        const nextLon = lons[j];
-
-        const d = (nextLon - lon + 360) % 360;
-
-        if (d <= maxD) continue;
-
-        maxD = d;
-        e = lon;
-        w = nextLon;
-      }
-
-      // Mapbox won't render a bounding box correctly if the east bound is less
-      // than the west bound.
-      if (e < w) e += 360;
-
-      return [w, s, e, n];
-    },
 
     segmentAtOffsetTime: (offsetTime) => {
       return segmentAtTime(startTime + offsetTime);
@@ -125,6 +86,54 @@ export function createJourney(
 
     segmentAtTime,
   };
+}
+
+/**
+ * @see https://stackoverflow.com/a/58859132/736156
+ */
+export function boundingBox(
+  ...positions: [
+    GeolocationPosition,
+    GeolocationPosition,
+    ...GeolocationPosition[],
+  ]
+): [west: number, south: number, east: number, north: number] {
+  const count = positions.length;
+  const lons = positions
+    .map(({ coords: { longitude } }) => longitude)
+    .sort((a, b) => a - b);
+
+  let w = NaN,
+    s = Infinity,
+    e = NaN,
+    n = -Infinity,
+    maxD = -Infinity;
+
+  for (let i = 0; i < count; ++i) {
+    const lat = positions[i].coords.latitude;
+
+    if (lat < s) s = lat;
+    if (lat > n) n = lat;
+
+    const j = (i + 1) % count;
+
+    const lon = lons[i];
+    const nextLon = lons[j];
+
+    const d = (nextLon - lon + 360) % 360;
+
+    if (d <= maxD) continue;
+
+    maxD = d;
+    e = lon;
+    w = nextLon;
+  }
+
+  // Mapbox won't render a bounding box correctly if the east bound is less
+  // than the west bound.
+  if (e < w) e += 360;
+
+  return [w, s, e, n];
 }
 
 export function lerpPosition(

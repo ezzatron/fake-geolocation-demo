@@ -4,6 +4,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import Map from "../components/Map";
 import {
+  boundingBox,
   createJourneyFromGeoJSON,
   lerpPosition,
   type GeoJSONJourney,
@@ -11,7 +12,7 @@ import {
 import journeyJSON from "../journey.json";
 
 const journey = createJourneyFromGeoJSON(journeyJSON as GeoJSONJourney);
-const boundingBox = journey.boundingBox();
+const journeyBounds = boundingBox(...journey.positions);
 
 type Props = {
   mapboxToken: string;
@@ -94,7 +95,11 @@ export default function Demo({ mapboxToken }: Props) {
         <title>Fake Geolocation Demo</title>
       </Head>
 
-      <Map mapboxToken={mapboxToken} bounds={boundingBox} position={position} />
+      <Map
+        mapboxToken={mapboxToken}
+        bounds={journeyBounds}
+        position={position}
+      />
     </>
   );
 }
