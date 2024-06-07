@@ -14,8 +14,8 @@ import {
 } from "nvector-geodesy";
 
 export type Journey = {
-  startPosition: GeolocationPosition;
-  endPosition: GeolocationPosition;
+  readonly startPosition: GeolocationPosition;
+  readonly endPosition: GeolocationPosition;
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
 };
@@ -71,13 +71,8 @@ export function createJourney(
   };
 
   return {
-    get startPosition() {
-      return startPosition;
-    },
-
-    get endPosition() {
-      return endPosition;
-    },
+    startPosition,
+    endPosition,
 
     segmentAtOffsetTime: (offsetTime) => {
       return segmentAtTime(startTime + offsetTime);
