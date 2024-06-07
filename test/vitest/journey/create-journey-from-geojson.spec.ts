@@ -90,3 +90,26 @@ it("creates a journey from GeoJSON", () => {
     Infinity,
   ]);
 });
+
+it("throws when there are insufficient positions", () => {
+  const geoJSONWithoutTimes: GeoJSONJourney = {
+    type: "Feature",
+    properties: {
+      coordinateProperties: {
+        times: [null, "2002-03-09T16:19:57Z", null],
+      },
+    },
+    geometry: {
+      type: "LineString",
+      coordinates: [
+        [-1, -2, -3],
+        [1, 11, 111],
+        [-4, -5, -6],
+      ],
+    },
+  };
+
+  expect(() => createJourneyFromGeoJSON(geoJSONWithoutTimes)).toThrowError(
+    "Insufficient positions for a journey",
+  );
+});
