@@ -117,16 +117,16 @@ export function boundingBox(
 
     const j = (i + 1) % count;
 
-    const lon = lons[i];
-    const nextLon = lons[j];
+    const lonA = lons[i];
+    const lonB = lons[j];
 
-    const d = (nextLon - lon + 360) % 360;
+    const d = (lonB - lonA + 360) % 360;
 
     if (d <= maxD) continue;
 
     maxD = d;
-    e = lon;
-    w = nextLon;
+    e = lonA;
+    w = lonB;
   }
 
   // Mapbox won't render a bounding box correctly if the east bound is less
