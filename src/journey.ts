@@ -33,13 +33,13 @@ export type JourneySegmentWithT = [
   t: number,
 ];
 
-export function createJourney(
-  ...positions: [
-    GeolocationPosition,
-    GeolocationPosition,
-    ...GeolocationPosition[],
-  ]
-): Journey {
+export type AtLeastTwoPositions = [
+  GeolocationPosition,
+  GeolocationPosition,
+  ...GeolocationPosition[],
+];
+
+export function createJourney(...positions: AtLeastTwoPositions): Journey {
   positions.sort(({ timestamp: a }, { timestamp: b }) => a - b);
 
   const count = positions.length;
@@ -88,16 +88,12 @@ export function createJourney(
   };
 }
 
+type BoundingBox = [west: number, south: number, east: number, north: number];
+
 /**
  * @see https://stackoverflow.com/a/58859132/736156
  */
-export function boundingBox(
-  ...positions: [
-    GeolocationPosition,
-    GeolocationPosition,
-    ...GeolocationPosition[],
-  ]
-): [west: number, south: number, east: number, north: number] {
+export function boundingBox(...positions: AtLeastTwoPositions): BoundingBox {
   const count = positions.length;
   const lons = positions
     .map(({ coords: { longitude } }) => longitude)
