@@ -13,14 +13,19 @@ import {
   transpose,
 } from "nvector-geodesy";
 
+export type AtLeastTwoPositions = [
+  GeolocationPosition,
+  GeolocationPosition,
+  ...GeolocationPosition[],
+];
+
+export type AtLeastOneSegment = [JourneySegment, ...JourneySegment[]];
+
 export type Journey = {
-  readonly positions: [
-    GeolocationPosition,
-    GeolocationPosition,
-    ...GeolocationPosition[],
-  ];
+  readonly positions: AtLeastTwoPositions;
   readonly startPosition: GeolocationPosition;
   readonly endPosition: GeolocationPosition;
+  readonly segments: AtLeastOneSegment;
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
 };
@@ -33,12 +38,6 @@ export type JourneySegmentWithT = [
   t: number,
 ];
 
-export type AtLeastTwoPositions = [
-  GeolocationPosition,
-  GeolocationPosition,
-  ...GeolocationPosition[],
-];
-
 export function createJourney(...positions: AtLeastTwoPositions): Journey {
   positions.sort(({ timestamp: a }, { timestamp: b }) => a - b);
 
@@ -49,6 +48,12 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
   const endTime = endPosition.timestamp;
   const start: JourneySegment = [startPosition, positions[1]] as const;
   const end: JourneySegment = [positions[count - 2], endPosition] as const;
+
+  const segments: AtLeastOneSegment = [[positions[0], positions[1]]];
+
+  for (let i = 2; i < count; ++i) {
+    segments.push([positions[i - 1], positions[i]]);
+  }
 
   const segmentAtTime: Journey["segmentAtTime"] = (time: number) => {
     if (time < startTime) return [...start, -Infinity];
@@ -79,6 +84,7 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
     positions,
     startPosition,
     endPosition,
+    segments,
 
     segmentAtOffsetTime: (offsetTime) => {
       return segmentAtTime(startTime + offsetTime);
@@ -118,11 +124,11 @@ export function boundingBox(...positions: AtLeastTwoPositions): BoundingBox {
 
     const d = (lonB - lonA + 360) % 360;
 
-    if (d <= maxD) continue;
-
-    maxD = d;
-    e = lonA;
-    w = lonB;
+    if (d > maxD) {
+      maxD = d;
+      e = lonA;
+      w = lonB;
+    }
   }
 
   // Mapbox won't render a bounding box correctly if the east bound is less
@@ -130,6 +136,44 @@ export function boundingBox(...positions: AtLeastTwoPositions): BoundingBox {
   if (e < w) e += 360;
 
   return [w, s, e, n];
+}
+
+export function findFastestSegment(
+  ...segments: AtLeastOneSegment
+): JourneySegment {
+  let maxSpd = -Infinity;
+  let fastest: JourneySegment = segments[0];
+
+  for (const seg of segments) {
+    const spd = speed(...seg);
+
+    if (spd > maxSpd) {
+      maxSpd = spd;
+      fastest = seg;
+    }
+  }
+
+  console.log({ maxSpd, fastest });
+
+  return fastest;
+}
+
+export function distance(
+  a: GeolocationCoordinates,
+  b: GeolocationCoordinates,
+): number {
+  return norm(
+    delta(
+      fromGeodeticCoordinates(radians(a.longitude), radians(a.latitude)),
+      fromGeodeticCoordinates(radians(b.longitude), radians(b.latitude)),
+      -(a.altitude ?? -0),
+      -(b.altitude ?? -0),
+    ),
+  );
+}
+
+export function speed(a: GeolocationPosition, b: GeolocationPosition): number {
+  return distance(a.coords, b.coords) / ((b.timestamp - a.timestamp) / 1000);
 }
 
 export function lerpPosition(
