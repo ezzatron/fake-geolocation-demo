@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createJourney } from "../../../src/journey";
+import { boundingBox, createJourney } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 describe("when the journey does not span the dateline", () => {
@@ -19,7 +19,7 @@ describe("when the journey does not span the dateline", () => {
   );
 
   it("finds the bounding box of the journey", () => {
-    expect(journey.boundingBox()).toMatchObject([10, 1, 30, 3]);
+    expect(boundingBox(...journey.positions)).toMatchObject([10, 1, 30, 3]);
   });
 });
 
@@ -40,6 +40,6 @@ describe("when the journey spans the dateline", () => {
   );
 
   it("finds the bounding box of the journey", () => {
-    expect(journey.boundingBox()).toMatchObject([175, 1, 185, 3]);
+    expect(boundingBox(...journey.positions)).toMatchObject([175, 1, 185, 3]);
   });
 });
