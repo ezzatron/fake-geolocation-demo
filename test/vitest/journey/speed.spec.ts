@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { createJourney } from "../../../src/journey";
+import { createJourney, lerpPosition } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 const ONE_MINUTE = 60 * 1000;
@@ -45,6 +45,8 @@ it.each([
   [(ONE_DAY / 3) * 2, 13.471649730619555],
   [ONE_DAY, 0],
   [ONE_DAY + ONE_HOUR, 0],
-])("linearly interpolates speed for time = %s", (t, speed) => {
-  expect(journey.coordinatesAtOffset(t).speed).toBeCloseTo(speed, 10);
+])("linearly interpolates speed for time = %s", (offsetTime, speed) => {
+  const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+
+  expect(lerpPosition(a, b, t).speed).toBe(speed);
 });

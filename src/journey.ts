@@ -14,87 +14,118 @@ import {
 } from "nvector-geodesy";
 
 export type Journey = {
-  coordinatesAtOffset: (offsetTime: number) => GeolocationCoordinates;
+  startPosition: GeolocationPosition;
+  endPosition: GeolocationPosition;
+  segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
+  segmentAtTime: (time: number) => JourneySegmentWithT;
 };
 
-export function createJourney(...positions: GeolocationPosition[]): Journey {
-  if (positions.length < 1) throw new TypeError("No positions provided");
+export type JourneySegment = [a: GeolocationPosition, b: GeolocationPosition];
 
-  // Sort by time, make copies, and strip headings and speeds
-  positions = positions
-    .sort(({ timestamp: a }, { timestamp: b }) => a - b)
-    .map((p) => ({ ...p, coords: { ...p.coords, heading: NaN, speed: 0 } }));
+export type JourneySegmentWithT = [
+  a: GeolocationPosition,
+  b: GeolocationPosition,
+  t: number,
+];
+
+export function createJourney(
+  a: GeolocationPosition,
+  b: GeolocationPosition,
+  ...additional: GeolocationPosition[]
+): Journey {
+  const positions = [a, b, ...additional].sort(
+    ({ timestamp: a }, { timestamp: b }) => a - b,
+  );
+
   const count = positions.length;
-  const first = positions[0];
-  const last = positions[count - 1];
+  const startPosition = positions[0];
+  const endPosition = positions[count - 1];
+  const startTime = startPosition.timestamp;
+  const endTime = endPosition.timestamp;
+  const start: JourneySegment = [startPosition, positions[1]] as const;
+  const end: JourneySegment = [positions[count - 2], endPosition] as const;
 
-  const startTime = first.timestamp;
+  const segmentAtTime: Journey["segmentAtTime"] = (time: number) => {
+    if (time < startTime) return [...start, -Infinity];
+    if (time >= endTime) return [...end, Infinity];
+
+    // Find the index of the first position after t, or count if t is after
+    // the last position, using a binary search.
+    let idx = 0;
+
+    for (let j = count; idx < j; ) {
+      // Fast integer division by 2
+      const h = (idx + j) >> 1;
+
+      if (positions[h].timestamp <= time) {
+        idx = h + 1;
+      } else {
+        j = h;
+      }
+    }
+
+    const b = positions[idx];
+    const a = positions[idx - 1];
+
+    return [a, b, (time - a.timestamp) / (b.timestamp - a.timestamp)];
+  };
 
   return {
-    coordinatesAtOffset: (offsetTime) => {
-      const time = startTime + offsetTime;
-
-      // Find the index of the first position after t, or count if t is after
-      // the last position, using a binary search.
-      let idx = 0;
-
-      for (let j = count; idx < j; ) {
-        // Fast integer division by 2
-        const h = (idx + j) >> 1;
-
-        if (positions[h].timestamp <= time) {
-          idx = h + 1;
-        } else {
-          j = h;
-        }
-      }
-
-      const b = positions[idx];
-
-      if (!b) return last.coords;
-
-      const a = positions[idx - 1];
-
-      if (!a) return b.coords;
-
-      const t = (time - a.timestamp) / (b.timestamp - a.timestamp);
-      const ca = a.coords;
-      const cb = b.coords;
-
-      // Position n-vectors
-      const va = fromGeodeticCoordinates(
-        radians(ca.longitude),
-        radians(ca.latitude),
-      );
-      const vb = fromGeodeticCoordinates(
-        radians(cb.longitude),
-        radians(cb.latitude),
-      );
-
-      // From n-vector example 6, interpolated position
-      const vi = normalize(apply((va, vb) => lerp(va, vb, t), va, vb));
-      const [lon, lat] = toGeodeticCoordinates(vi);
-
-      // From n-vector example 1, A and B to delta
-      const d = delta(va, vb, -(ca.altitude ?? -0), -(cb.altitude ?? -0));
-      const [north, east] = transform(transpose(toRotationMatrix(va)), d);
-      const az = Math.atan2(east, north);
-      const dist = norm(d);
-
-      return {
-        longitude: degrees(lon),
-        latitude: degrees(lat),
-        accuracy: lerp(ca.accuracy, cb.accuracy, t),
-        altitude: lerpNullable(ca.altitude, cb.altitude, t),
-        altitudeAccuracy: lerpNullable(
-          ca.altitudeAccuracy,
-          cb.altitudeAccuracy,
-          t,
-        ),
-        heading: (degrees(az) + 360) % 360,
-        speed: dist / ((b.timestamp - a.timestamp) / 1000),
-      };
+    get startPosition() {
+      return startPosition;
     },
+
+    get endPosition() {
+      return endPosition;
+    },
+
+    segmentAtOffsetTime: (offsetTime) => {
+      return segmentAtTime(startTime + offsetTime);
+    },
+
+    segmentAtTime,
+  };
+}
+
+export function lerpPosition(
+  a: GeolocationPosition,
+  b: GeolocationPosition,
+  t: number,
+): GeolocationCoordinates {
+  const ca = a.coords;
+  const cb = b.coords;
+
+  if (t < 0) return { ...ca, heading: NaN, speed: 0 };
+  if (t >= 1) return { ...cb, heading: NaN, speed: 0 };
+
+  // Position n-vectors
+  const va = fromGeodeticCoordinates(
+    radians(ca.longitude),
+    radians(ca.latitude),
+  );
+  const vb = fromGeodeticCoordinates(
+    radians(cb.longitude),
+    radians(cb.latitude),
+  );
+
+  // From n-vector example 6, interpolated position
+  const vi = normalize(apply((va, vb) => lerp(va, vb, t), va, vb));
+  const [lon, lat] = toGeodeticCoordinates(vi);
+
+  // From n-vector example 1, A and B to delta
+  const d = delta(va, vb, -(ca.altitude ?? -0), -(cb.altitude ?? -0));
+  const [north, east] = transform(transpose(toRotationMatrix(va)), d);
+  const az = Math.atan2(east, north);
+  const dist = norm(d);
+
+  return {
+    longitude: degrees(lon),
+    latitude: degrees(lat),
+    accuracy: lerp(ca.accuracy, cb.accuracy, t),
+    altitude: lerpNullable(ca.altitude, cb.altitude, t),
+    altitudeAccuracy: lerpNullable(ca.altitudeAccuracy, cb.altitudeAccuracy, t),
+    heading: (degrees(az) + 360) % 360,
+    speed: dist / ((b.timestamp - a.timestamp) / 1000),
   };
 }
 
@@ -152,5 +183,10 @@ export function createJourneyFromGeoJSON({
     });
   }
 
-  return createJourney(...positions);
+  const a = positions.shift();
+  const b = positions.shift();
+
+  if (!a || !b) throw new Error("Insufficient positions for a journey");
+
+  return createJourney(a, b, ...positions);
 }

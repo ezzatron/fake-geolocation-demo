@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { createJourney } from "../../../src/journey";
+import { createJourney, lerpPosition } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 const journey = createJourney(
@@ -29,8 +29,10 @@ it.each([
   [175, 70, 90],
 ])(
   "linearly interpolates the coordinates for time = %s",
-  (t, longitude, latitude) => {
-    expect(journey.coordinatesAtOffset(t)).toMatchObject({
+  (offsetTime, longitude, latitude) => {
+    const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+
+    expect(lerpPosition(a, b, t)).toMatchObject({
       longitude: expect.closeTo(longitude, 10) as number,
       latitude: expect.closeTo(latitude, 10) as number,
     });
