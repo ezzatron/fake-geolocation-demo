@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { createJourney } from "../../../src/journey";
+import { createJourney, lerpPosition } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 const journey = createJourney(
@@ -27,6 +27,8 @@ it.each([
   [125, 27.5],
   [150, 30],
   [175, 30],
-])("linearly interpolates accuracy for time = %s", (t, accuracy) => {
-  expect(journey.coordinatesAtOffset(t).accuracy).toBe(accuracy);
+])("linearly interpolates accuracy for time = %s", (offsetTime, accuracy) => {
+  const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+
+  expect(lerpPosition(a, b, t).accuracy).toBe(accuracy);
 });

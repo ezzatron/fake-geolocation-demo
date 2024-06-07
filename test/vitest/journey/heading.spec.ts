@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { createJourney } from "../../../src/journey";
+import { createJourney, lerpPosition } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 const journey = createJourney(
@@ -27,10 +27,12 @@ it.each([
   [125, 225.63095885129377],
   [150, NaN],
   [175, NaN],
-])("linearly interpolates heading for time = %s", (t, heading) => {
+])("linearly interpolates heading for time = %s", (offsetTime, heading) => {
+  const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+
   if (Number.isNaN(heading)) {
-    expect(journey.coordinatesAtOffset(t).heading).toBeNaN();
+    expect(lerpPosition(a, b, t).heading).toBeNaN();
   } else {
-    expect(journey.coordinatesAtOffset(t).heading).toBeCloseTo(heading, 10);
+    expect(lerpPosition(a, b, t).heading).toBeCloseTo(heading, 10);
   }
 });

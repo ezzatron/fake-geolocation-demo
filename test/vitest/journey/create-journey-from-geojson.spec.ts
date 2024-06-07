@@ -20,11 +20,11 @@ const geoJSON: GeoJSONJourney = {
   geometry: {
     type: "LineString",
     coordinates: [
-      [-71.266165, 42.049677, 62.142334],
-      [1, 2, 3],
-      [-71.265993, 42.049785, 47.241821],
-      [4, 5, 6],
-      [-71.265929, 42.049656, 61.18103],
+      [3, 33, 333],
+      [-1, -2, -3],
+      [1, 11, 111],
+      [-4, -5, -6],
+      [2, 22, 222],
     ],
   },
 };
@@ -32,23 +32,61 @@ const geoJSON: GeoJSONJourney = {
 it("creates a journey from GeoJSON", () => {
   const journey = createJourneyFromGeoJSON(geoJSON);
 
-  const timeA = new Date("2002-03-09T16:19:57Z").getTime();
-  const timeB = new Date("2002-03-09T16:22:07Z").getTime();
-  const timeC = new Date("2002-03-09T16:22:27Z").getTime();
-
-  expect(journey.coordinatesAtOffset(0)).toMatchObject({
-    longitude: expect.closeTo(-71.265993, 8) as number,
-    latitude: expect.closeTo(42.049785, 8) as number,
-    altitude: expect.closeTo(47.241821, 8) as number,
-  });
-  expect(journey.coordinatesAtOffset(timeB - timeA)).toMatchObject({
-    longitude: expect.closeTo(-71.265929, 8) as number,
-    latitude: expect.closeTo(42.049656, 8) as number,
-    altitude: expect.closeTo(61.18103, 8) as number,
-  });
-  expect(journey.coordinatesAtOffset(timeC - timeA)).toMatchObject({
-    longitude: expect.closeTo(-71.266165, 8) as number,
-    latitude: expect.closeTo(42.049677, 8) as number,
-    altitude: expect.closeTo(62.142334, 8) as number,
-  });
+  expect(
+    journey.segmentAtTime(new Date("2002-03-09T16:19:57Z").getTime()),
+  ).toMatchObject([
+    {
+      coords: {
+        longitude: 1,
+        latitude: 11,
+        altitude: 111,
+      },
+    },
+    {
+      coords: {
+        longitude: 2,
+        latitude: 22,
+        altitude: 222,
+      },
+    },
+    0,
+  ]);
+  expect(
+    journey.segmentAtTime(new Date("2002-03-09T16:22:07Z").getTime()),
+  ).toMatchObject([
+    {
+      coords: {
+        longitude: 2,
+        latitude: 22,
+        altitude: 222,
+      },
+    },
+    {
+      coords: {
+        longitude: 3,
+        latitude: 33,
+        altitude: 333,
+      },
+    },
+    0,
+  ]);
+  expect(
+    journey.segmentAtTime(new Date("2002-03-09T16:22:27Z").getTime()),
+  ).toMatchObject([
+    {
+      coords: {
+        longitude: 2,
+        latitude: 22,
+        altitude: 222,
+      },
+    },
+    {
+      coords: {
+        longitude: 3,
+        latitude: 33,
+        altitude: 333,
+      },
+    },
+    Infinity,
+  ]);
 });

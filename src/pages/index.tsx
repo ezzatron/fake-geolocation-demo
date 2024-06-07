@@ -3,7 +3,11 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import Map from "../components/Map";
-import { createJourneyFromGeoJSON, type GeoJSONJourney } from "../journey";
+import {
+  createJourneyFromGeoJSON,
+  lerpPosition,
+  type GeoJSONJourney,
+} from "../journey";
 import journeyJSON from "../journey.json";
 
 const journey = createJourneyFromGeoJSON(journeyJSON as GeoJSONJourney);
@@ -33,20 +37,20 @@ export default function Demo({ mapboxToken }: Props) {
   const journeyTime = useRef(1.9 * 60 * 1000);
 
   useEffect(() => {
-    const { geolocation, isUsingSuppliedAPIs, permissions, selectAPIs, user } =
-      createWrappedAPIs({
-        geolocation: navigator.geolocation,
-        permissions: navigator.permissions,
-        handlePermissionRequest: () => "granted",
-      });
+    const { geolocation, permissions, user } = createWrappedAPIs({
+      geolocation: navigator.geolocation,
+      permissions: navigator.permissions,
+      handlePermissionRequest: () => "granted",
+    });
 
-    user.jumpToCoordinates(journey.coordinatesAtOffset(journeyTime.current));
+    user.jumpToCoordinates(journey.startPosition.coords);
 
     setGeolocation(geolocation);
     setPermissions(permissions);
 
     const coordsIntervalId = setInterval(() => {
-      const coords = journey.coordinatesAtOffset((journeyTime.current += 100));
+      const [a, b, t] = journey.segmentAtOffsetTime(journeyTime.current);
+      const coords = lerpPosition(a, b, t);
       user.jumpToCoordinates(coords);
 
       const { altitude, heading, speed } = coords;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createJourney } from "../../../src/journey";
+import { createJourney, lerpPosition } from "../../../src/journey";
 import { createCoordinates } from "./util";
 
 describe("when altitude accuracy data is present", () => {
@@ -28,9 +28,14 @@ describe("when altitude accuracy data is present", () => {
     [125, 27.5],
     [150, 30],
     [175, 30],
-  ])("linearly interpolates altitudeAccuracy for time = %s", (t, accuracy) => {
-    expect(journey.coordinatesAtOffset(t).altitudeAccuracy).toBe(accuracy);
-  });
+  ])(
+    "linearly interpolates altitudeAccuracy for time = %s",
+    (offsetTime, altitudeAccuracy) => {
+      const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+
+      expect(lerpPosition(a, b, t).altitudeAccuracy).toBe(altitudeAccuracy);
+    },
+  );
 });
 
 describe("when no altitude accuracy data is present", () => {
@@ -51,8 +56,10 @@ describe("when no altitude accuracy data is present", () => {
 
   it.each([[-25], [0], [25], [50], [75], [100], [125], [150], [175]])(
     "returns null for time = %s",
-    (t) => {
-      expect(journey.coordinatesAtOffset(t).altitudeAccuracy).toBeNull();
+    (offsetTime) => {
+      const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+
+      expect(lerpPosition(a, b, t).altitudeAccuracy).toBeNull();
     },
   );
 });
@@ -83,7 +90,12 @@ describe("when partial altitude accuracy data is present", () => {
     [125, null],
     [150, 30],
     [175, 30],
-  ])("doesn't interpolate altitudeAccuracy for time = %s", (t, accuracy) => {
-    expect(journey.coordinatesAtOffset(t).altitudeAccuracy).toBe(accuracy);
-  });
+  ])(
+    "doesn't interpolate altitudeAccuracy for time = %s",
+    (offsetTime, altitudeAccuracy) => {
+      const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+
+      expect(lerpPosition(a, b, t).altitudeAccuracy).toBe(altitudeAccuracy);
+    },
+  );
 });
