@@ -4,31 +4,27 @@ import { createCoordinates } from "./util";
 
 const journey = createJourney(
   {
-    coords: createCoordinates({ accuracy: 20 }),
+    coords: createCoordinates({ accuracy: 2 }),
     timestamp: 50,
   },
   {
-    coords: createCoordinates({ accuracy: 30 }),
+    coords: createCoordinates({ accuracy: 3 }),
     timestamp: 150,
   },
   {
-    coords: createCoordinates({ accuracy: 10 }),
+    coords: createCoordinates({ accuracy: 1 }),
     timestamp: 0,
   },
 );
 
 it("finds the start position", () => {
   expect(journey.startPosition).toMatchObject({
-    coords: {
-      accuracy: 10,
-    },
+    coords: { accuracy: 1 },
   });
 });
 
 it("finds the end position", () => {
   expect(journey.endPosition).toMatchObject({
-    coords: {
-      accuracy: 30,
-    },
+    coords: { accuracy: 3 },
   });
 });

@@ -16,6 +16,12 @@ import {
 export type Journey = {
   readonly startPosition: GeolocationPosition;
   readonly endPosition: GeolocationPosition;
+  boundingBox: () => [
+    minimumLongitude: number,
+    minimumLatitude: number,
+    maximumLongitude: number,
+    maximumLatitude: number,
+  ];
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
 };
@@ -73,6 +79,45 @@ export function createJourney(
   return {
     startPosition,
     endPosition,
+
+    boundingBox() {
+      // From https://stackoverflow.com/a/58859132/736156
+      const lons = positions
+        .map(({ coords: { longitude } }) => longitude)
+        .sort((a, b) => a - b);
+
+      let w = NaN,
+        s = Infinity,
+        e = NaN,
+        n = -Infinity,
+        maxD = -Infinity;
+
+      for (let i = 0; i < count; ++i) {
+        const lat = positions[i].coords.latitude;
+
+        if (lat < s) s = lat;
+        if (lat > n) n = lat;
+
+        const j = (i + 1) % count;
+
+        const lon = lons[i];
+        const nextLon = lons[j];
+
+        const d = (nextLon - lon + 360) % 360;
+
+        if (d <= maxD) continue;
+
+        maxD = d;
+        e = lon;
+        w = nextLon;
+      }
+
+      // Mapbox won't render a bounding box correctly if the east bound is less
+      // than the west bound.
+      if (e < w) e += 360;
+
+      return [w, s, e, n];
+    },
 
     segmentAtOffsetTime: (offsetTime) => {
       return segmentAtTime(startTime + offsetTime);

@@ -11,6 +11,7 @@ import {
 import journeyJSON from "../journey.json";
 
 const journey = createJourneyFromGeoJSON(journeyJSON as GeoJSONJourney);
+const boundingBox = journey.boundingBox();
 
 type Props = {
   mapboxToken: string;
@@ -49,7 +50,9 @@ export default function Demo({ mapboxToken }: Props) {
     setPermissions(permissions);
 
     const coordsIntervalId = setInterval(() => {
-      const [a, b, t] = journey.segmentAtOffsetTime(journeyTime.current);
+      const [a, b, t] = journey.segmentAtOffsetTime(
+        (journeyTime.current += 100),
+      );
       const coords = lerpPosition(a, b, t);
       user.jumpToCoordinates(coords);
 
@@ -91,7 +94,7 @@ export default function Demo({ mapboxToken }: Props) {
         <title>Fake Geolocation Demo</title>
       </Head>
 
-      <Map mapboxToken={mapboxToken} position={position} />
+      <Map mapboxToken={mapboxToken} bounds={boundingBox} position={position} />
     </>
   );
 }

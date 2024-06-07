@@ -6,6 +6,7 @@ import styles from "./Map.module.css";
 
 type Props = {
   mapboxToken: string;
+  bounds: [number, number, number, number];
   position: GeolocationPosition | undefined;
 };
 
@@ -20,21 +21,11 @@ export default class Map extends Component<Props> {
         accessToken: this.props.mapboxToken,
         container,
         style: "mapbox://styles/mapbox/dark-v11",
+        bounds: this.props.bounds,
+        fitBoundsOptions: { padding: 64 },
         center: this.#lngLat,
-        zoom: 18,
-
-        boxZoom: false,
-        doubleClickZoom: false,
-        dragPan: false,
-        dragRotate: false,
-        keyboard: false,
-        scrollZoom: { around: "center" },
-        touchPitch: false,
-        touchZoomRotate: { around: "center" },
       });
       this.#map = map;
-
-      map.touchZoomRotate.disableRotation();
 
       map.on("load", () => {
         map.addSource("accuracy", {
@@ -96,8 +87,6 @@ export default class Map extends Component<Props> {
 
   componentDidUpdate({ position }: Props): void {
     if (this.props.position !== position) {
-      this.#map?.jumpTo({ center: this.#lngLat });
-
       this.#accuracySource?.setData(this.#accuracyFeature);
       this.#positionSource?.setData(this.#positionFeature);
     }
