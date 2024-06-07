@@ -34,8 +34,8 @@ export function createJourney(...positions: GeolocationPosition[]): Journey {
     coordinatesAtOffset: (offsetTime) => {
       const time = startTime + offsetTime;
 
-      // Find the index of the first position after t, or count if t is after the
-      // last position, using a binary search.
+      // Find the index of the first position after t, or count if t is after
+      // the last position, using a binary search.
       let idx = 0;
 
       for (let j = count; idx < j; ) {

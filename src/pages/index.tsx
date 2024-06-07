@@ -30,7 +30,7 @@ export default function Demo({ mapboxToken }: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
-  const journeyTime = useRef(0);
+  const journeyTime = useRef(1.9 * 60 * 1000);
 
   useEffect(() => {
     const { geolocation, isUsingSuppliedAPIs, permissions, selectAPIs, user } =
@@ -54,13 +54,13 @@ export default function Demo({ mapboxToken }: Props) {
       console.log({ altitude, heading, speed });
     }, 100);
 
-    const switchAPIsIntervalId = setInterval(() => {
-      selectAPIs(!isUsingSuppliedAPIs());
-    }, 15000);
+    // const switchAPIsIntervalId = setInterval(() => {
+    //   selectAPIs(!isUsingSuppliedAPIs());
+    // }, 15000);
 
     return () => {
       clearInterval(coordsIntervalId);
-      clearInterval(switchAPIsIntervalId);
+      // clearInterval(switchAPIsIntervalId);
     };
   }, []);
 
