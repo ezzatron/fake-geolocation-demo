@@ -25,6 +25,7 @@ export type Journey = {
   readonly positions: AtLeastTwoPositions;
   readonly startPosition: GeolocationPosition;
   readonly endPosition: GeolocationPosition;
+  readonly positionTimes: number[];
   readonly segments: AtLeastOneSegment;
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
@@ -41,6 +42,7 @@ export type JourneySegmentWithT = [
 export function createJourney(...positions: AtLeastTwoPositions): Journey {
   positions.sort(({ timestamp: a }, { timestamp: b }) => a - b);
 
+  const positionTimes = positions.map(({ timestamp }) => timestamp);
   const count = positions.length;
   const startPosition = positions[0];
   const endPosition = positions[count - 1];
@@ -84,6 +86,7 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
     positions,
     startPosition,
     endPosition,
+    positionTimes,
     segments,
 
     segmentAtOffsetTime: (offsetTime) => {
