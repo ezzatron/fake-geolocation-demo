@@ -5,16 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import Map from "../components/Map";
 import {
   boundingBox,
-  createJourneyFromGeoJSON,
-  findFastestSegment,
+  createJourneyFromMapboxRoute,
   lerpPosition,
-  type GeoJSONJourney,
+  type MapboxRouteWithDurations,
 } from "../journey";
-import journeyJSON from "../journey.json";
+import directionsJSON from "../mapbox-directions.json";
 
-const journey = createJourneyFromGeoJSON(journeyJSON as GeoJSONJourney);
+const journey = createJourneyFromMapboxRoute(
+  directionsJSON.routes[0] as MapboxRouteWithDurations,
+);
 const journeyBounds = boundingBox(...journey.positions);
-const fastestSegment = findFastestSegment(...journey.segments);
 
 type Props = {
   mapboxToken: string;
@@ -38,7 +38,7 @@ export default function Demo({ mapboxToken }: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
-  const journeyTime = useRef(fastestSegment[0].timestamp - 5000);
+  const journeyTime = useRef(0);
 
   useEffect(() => {
     const { geolocation, permissions, user } = createWrappedAPIs({
@@ -53,7 +53,9 @@ export default function Demo({ mapboxToken }: Props) {
     setPermissions(permissions);
 
     const coordsIntervalId = setInterval(() => {
-      const [a, b, t] = journey.segmentAtTime((journeyTime.current += 100));
+      const [a, b, t] = journey.segmentAtOffsetTime(
+        (journeyTime.current += 100),
+      );
       const coords = lerpPosition(a, b, t);
       user.jumpToCoordinates(coords);
 

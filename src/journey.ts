@@ -312,8 +312,8 @@ export type MapboxLegWithDurations = {
 };
 
 export function createJourneyFromMapboxRoute(
-  startTime: number,
   { geometry: { coordinates }, legs }: MapboxRouteWithDurations,
+  startTime: number = 0,
 ): Journey {
   const durations = legs.flatMap(({ annotation: { duration } }) => duration);
   const positions: GeolocationPosition[] = [];

@@ -29,7 +29,7 @@ const route: MapboxRouteWithDurations = {
 };
 
 it("creates a journey from a Mapbox route", () => {
-  const journey = createJourneyFromMapboxRoute(1111, route);
+  const journey = createJourneyFromMapboxRoute(route, 1111);
 
   expect(journey.segmentAtTime(0)).toMatchObject([
     { coords: { longitude: 1, latitude: 11 } },
@@ -73,7 +73,7 @@ it("throws when there are insufficient positions", () => {
     },
   };
 
-  expect(() => createJourneyFromMapboxRoute(1111, route)).toThrow(
+  expect(() => createJourneyFromMapboxRoute(route)).toThrow(
     "Insufficient positions for a journey",
   );
 });
