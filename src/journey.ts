@@ -30,6 +30,8 @@ export type Journey = {
   readonly segments: AtLeastOneSegment;
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
+  timeToOffsetTime: (time: number) => number;
+  offsetTimeToTime: (offsetTime: number) => number;
 };
 
 export type JourneySegment = [a: GeolocationPosition, b: GeolocationPosition];
@@ -103,6 +105,14 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
     },
 
     segmentAtTime,
+
+    timeToOffsetTime(time) {
+      return time - startTime;
+    },
+
+    offsetTimeToTime(offsetTime) {
+      return offsetTime + startTime;
+    },
   };
 }
 
