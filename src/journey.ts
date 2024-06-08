@@ -153,8 +153,6 @@ export function findFastestSegment(
     }
   }
 
-  console.log({ maxSpd, fastest });
-
   return fastest;
 }
 
