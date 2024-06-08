@@ -5,18 +5,22 @@ import { createCoordinates } from "./util";
 const journey = createJourney(
   {
     coords: createCoordinates({ accuracy: 10 }),
-    timestamp: 0,
+    timestamp: 100,
   },
   {
     coords: createCoordinates({ accuracy: 20 }),
-    timestamp: 50,
+    timestamp: 200,
   },
   {
     coords: createCoordinates({ accuracy: 30 }),
-    timestamp: 150,
+    timestamp: 300,
   },
 );
 
 it("exposes the position times", () => {
-  expect(journey.positionTimes).toMatchObject([0, 50, 150]);
+  expect(journey.positionTimes).toMatchObject([100, 200, 300]);
+});
+
+it("exposes the position offset times", () => {
+  expect(journey.positionOffsetTimes).toMatchObject([0, 100, 200]);
 });
