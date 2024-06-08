@@ -5,12 +5,27 @@ if (!token) {
 
 const baseURL = new URL("https://api.mapbox.com/");
 
-console.log(
-  JSON.stringify(
-    await directions("driving", [
-      await geocode("White Castle, Bronx, NY"),
-      await geocode("Five Guys, Jersey City, NJ"),
-    ]),
+const steps = [
+  await geocode("White Castle, Bronx, NY"),
+  await geocode("Five Guys, Jersey City, NJ"),
+  await geocode("Shake Shack, New York, NY"),
+];
+
+// console.log(new Date().toISOString().replace(/\.\d+Z$/, "Z"));
+// process.exit(1);
+
+const result = await directions("driving", steps, new Date());
+
+console.log(JSON.stringify(result));
+
+console.error("Steps:", steps);
+console.error("Legs:", result.routes[0].legs.length);
+console.error("Coordinates:", result.routes[0].geometry.coordinates.length);
+console.error(
+  "Durations:",
+  result.routes[0].legs.reduce(
+    (acc, leg) => acc + leg.annotation.duration.length,
+    0,
   ),
 );
 
@@ -29,7 +44,7 @@ async function geocode(query) {
   return data.features[0].geometry.coordinates;
 }
 
-async function directions(profile, stops) {
+async function directions(profile, stops, departAt) {
   const url = new URL(
     [
       "directions",
@@ -45,6 +60,10 @@ async function directions(profile, stops) {
   url.searchParams.set("geometries", "geojson");
   url.searchParams.set("overview", "full");
   url.searchParams.set("annotations", "duration");
+  url.searchParams.set(
+    "depart_at",
+    departAt.toISOString().replace(/\.\d+Z$/, "Z"),
+  );
 
   const res = await fetch(url);
 

@@ -299,3 +299,49 @@ export function createJourneyFromGeoJSON({
 
   return createJourney(a, b, ...positions);
 }
+
+export type MapboxRouteWithDurations = {
+  geometry: LineString;
+  legs: MapboxLegWithDurations[];
+};
+
+export type MapboxLegWithDurations = {
+  annotation: {
+    duration: number[];
+  };
+};
+
+export function createJourneyFromMapboxRoute(
+  startTime: number,
+  { geometry: { coordinates }, legs }: MapboxRouteWithDurations,
+): Journey {
+  const durations = legs.flatMap(({ annotation: { duration } }) => duration);
+  const positions: GeolocationPosition[] = [];
+  let time = startTime;
+
+  for (let i = 0; i < coordinates.length; ++i) {
+    const [longitude, latitude] = coordinates[i];
+
+    positions.push({
+      coords: {
+        longitude,
+        latitude,
+        altitude: 0,
+        accuracy: 0,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      },
+      timestamp: time,
+    });
+
+    time += (durations[i] ?? 0) * 1000;
+  }
+
+  const a = positions.shift();
+  const b = positions.shift();
+
+  if (!a || !b) throw new Error("Insufficient positions for a journey");
+
+  return createJourney(a, b, ...positions);
+}
