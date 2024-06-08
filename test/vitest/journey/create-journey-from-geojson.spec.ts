@@ -35,64 +35,28 @@ it("creates a journey from GeoJSON", () => {
   expect(
     journey.segmentAtTime(new Date("2002-03-09T16:19:57Z").getTime()),
   ).toMatchObject([
-    {
-      coords: {
-        longitude: 1,
-        latitude: 11,
-        altitude: 111,
-      },
-    },
-    {
-      coords: {
-        longitude: 2,
-        latitude: 22,
-        altitude: 222,
-      },
-    },
+    { coords: { longitude: 1, latitude: 11, altitude: 111 } },
+    { coords: { longitude: 2, latitude: 22, altitude: 222 } },
     0,
   ]);
   expect(
     journey.segmentAtTime(new Date("2002-03-09T16:22:07Z").getTime()),
   ).toMatchObject([
-    {
-      coords: {
-        longitude: 2,
-        latitude: 22,
-        altitude: 222,
-      },
-    },
-    {
-      coords: {
-        longitude: 3,
-        latitude: 33,
-        altitude: 333,
-      },
-    },
+    { coords: { longitude: 2, latitude: 22, altitude: 222 } },
+    { coords: { longitude: 3, latitude: 33, altitude: 333 } },
     0,
   ]);
   expect(
     journey.segmentAtTime(new Date("2002-03-09T16:22:27Z").getTime()),
   ).toMatchObject([
-    {
-      coords: {
-        longitude: 2,
-        latitude: 22,
-        altitude: 222,
-      },
-    },
-    {
-      coords: {
-        longitude: 3,
-        latitude: 33,
-        altitude: 333,
-      },
-    },
+    { coords: { longitude: 2, latitude: 22, altitude: 222 } },
+    { coords: { longitude: 3, latitude: 33, altitude: 333 } },
     Infinity,
   ]);
 });
 
 it("throws when there are insufficient positions", () => {
-  const geoJSONWithoutTimes: GeoJSONJourney = {
+  const geoJSON: GeoJSONJourney = {
     type: "Feature",
     properties: {
       coordinateProperties: {
@@ -109,7 +73,7 @@ it("throws when there are insufficient positions", () => {
     },
   };
 
-  expect(() => createJourneyFromGeoJSON(geoJSONWithoutTimes)).toThrowError(
+  expect(() => createJourneyFromGeoJSON(geoJSON)).toThrowError(
     "Insufficient positions for a journey",
   );
 });
