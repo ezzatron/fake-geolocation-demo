@@ -17,6 +17,18 @@ const journey = createJourney(
   },
 );
 
+it("exposes the start time", () => {
+  expect(journey.startTime).toBe(100);
+});
+
+it("exposes the end time", () => {
+  expect(journey.endTime).toBe(300);
+});
+
+it("exposes the duration", () => {
+  expect(journey.duration).toBe(200);
+});
+
 it("exposes the position times", () => {
   expect(journey.positionTimes).toMatchObject([100, 200, 300]);
 });
