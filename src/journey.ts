@@ -22,6 +22,9 @@ export type AtLeastTwoPositions = [
 export type AtLeastOneSegment = [JourneySegment, ...JourneySegment[]];
 
 export type Journey = {
+  readonly startTime: number;
+  readonly endTime: number;
+  readonly duration: number;
   readonly positions: AtLeastTwoPositions;
   readonly startPosition: GeolocationPosition;
   readonly endPosition: GeolocationPosition;
@@ -50,6 +53,7 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
   const endPosition = positions[count - 1];
   const startTime = startPosition.timestamp;
   const endTime = endPosition.timestamp;
+  const duration = endTime - startTime;
   const start: JourneySegment = [startPosition, positions[1]] as const;
   const end: JourneySegment = [positions[count - 2], endPosition] as const;
 
@@ -93,6 +97,9 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
   };
 
   return {
+    startTime,
+    endTime,
+    duration,
     positions,
     startPosition,
     endPosition,
