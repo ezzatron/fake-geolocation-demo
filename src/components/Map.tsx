@@ -10,7 +10,7 @@ import type {
 import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
 import styles from "./Map.module.css";
-import { Speedometer } from "./speedometer";
+import { Speedometer } from "./map-controls/speedometer";
 
 const EMPTY_GEOJSON: FeatureCollection<Geometry> = {
   type: "FeatureCollection",
