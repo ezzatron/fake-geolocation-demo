@@ -15,6 +15,7 @@ import {
 
 // TODO: Implement a "player" that can play back a journey
 // TODO: Altimeter and compass
+// TODO: Dynamic journey via geocoding inputs
 
 export type AtLeastTwoPositions = [
   GeolocationPosition,

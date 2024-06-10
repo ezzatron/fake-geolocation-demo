@@ -6,15 +6,23 @@ import Map from "../components/Map";
 import {
   boundingBox,
   createJourneyFromMapboxRoute,
+  findFastestSegment,
   geoJSONFromPositions,
   lerpPosition,
   type MapboxRouteWithDurations,
 } from "../journey";
+
 import directionsJSON from "../mapbox-directions.json";
+// import geoJSON from "../journey.json";
 
 const journey = createJourneyFromMapboxRoute(
   directionsJSON.routes[0] as MapboxRouteWithDurations,
 );
+// const journey = createJourneyFromGeoJSON(geoJSON as GeoJSONJourney);
+const fastestSegment = findFastestSegment(...journey.segments);
+// const startTime = 0;
+const startTime = journey.timeToOffsetTime(fastestSegment[0].timestamp);
+
 const journeyBounds = boundingBox(...journey.positions);
 const route = geoJSONFromPositions(...journey.positions);
 
@@ -40,7 +48,7 @@ export default function Demo({ mapboxToken }: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
-  const journeyTime = useRef(0);
+  const journeyTime = useRef(startTime);
 
   useEffect(() => {
     const { geolocation, permissions, user } = createWrappedAPIs({

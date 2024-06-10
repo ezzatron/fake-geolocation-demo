@@ -77,7 +77,7 @@ export class Speedometer implements IControl {
       return "walking";
     } else if (speed < 6.5) {
       return "biking";
-    } else if (speed < 55) {
+    } else if (speed < 85) {
       return "driving";
     } else if (speed < 300) {
       return "flying";
