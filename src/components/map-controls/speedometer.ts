@@ -54,10 +54,11 @@ export class Speedometer implements IControl {
 
   #update(): void {
     if (this.#speed == null) {
+      this.#container.dataset.available = "false";
       this.#container.removeAttribute("data-speed");
-      this.#container.dataset.mode = "unavailable";
+      this.#container.removeAttribute("data-mode");
     } else {
-      // Convert m/s to MPH with no decimal places
+      this.#container.dataset.available = "true";
       this.#container.dataset.speed = this.#formatSpeed(this.#speed);
       this.#container.dataset.mode = this.#mode(this.#speed);
     }

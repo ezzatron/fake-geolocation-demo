@@ -14,6 +14,8 @@ import {
 } from "nvector-geodesy";
 
 // TODO: Implement a "player" that can play back a journey
+//       Support seeking, looping, time scaling, jitter, disabling
+//       speed/altitude/heading, etc.
 // TODO: Altimeter and compass
 // TODO: Dynamic journey via geocoding inputs
 
@@ -363,7 +365,7 @@ export function createJourneyFromMapboxRoute(
       coords: {
         longitude,
         latitude,
-        altitude: 0,
+        altitude: null,
         accuracy: 0,
         altitudeAccuracy: null,
         heading: null,

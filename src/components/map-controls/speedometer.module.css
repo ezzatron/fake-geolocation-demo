@@ -14,7 +14,7 @@
   .speedometer {
   flex-direction: row-reverse;
 }
-.speedometer[data-mode="unavailable"] {
+.speedometer:not([data-available="true"]) {
   color: grey;
 }
 .speedometer::after {
@@ -23,7 +23,7 @@
   font-size: var(--size-6);
   text-align: center;
 }
-.speedometer[data-mode="unavailable"]::after {
+.speedometer:not([data-available="true"])::after {
   content: "⋯";
 }
 .speedometer:hover {
@@ -34,7 +34,7 @@
   height: var(--size-6);
   background-size: contain;
 }
-.speedometer[data-mode="unavailable"] [role="img"] {
+.speedometer:not([data-available="true"]) [role="img"] {
   /* lucide.dev "gauge" at 2px stroke width, grey */
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImdyZXkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1nYXVnZSI+PHBhdGggZD0ibTEyIDE0IDQtNCIvPjxwYXRoIGQ9Ik0zLjM0IDE5YTEwIDEwIDAgMSAxIDE3LjMyIDAiLz48L3N2Zz4=);
 }

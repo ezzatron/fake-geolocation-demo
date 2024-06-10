@@ -1,0 +1,38 @@
+.altimeter {
+  composes: mapboxgl-ctrl from global;
+
+  display: flex;
+  gap: var(--size-2);
+  align-items: center;
+  font-weight: var(--font-weight-7);
+  font-style: italic;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+:global(:is(.mapboxgl-ctrl-top-right, .mapboxgl-ctrl-bottom-right)) .altimeter {
+  flex-direction: row-reverse;
+}
+.altimeter:not([data-available="true"]) {
+  color: grey;
+}
+.altimeter::after {
+  content: attr(data-altitude);
+  display: block;
+  font-size: var(--size-6);
+  text-align: center;
+}
+.altimeter:not([data-available="true"])::after {
+  content: "⋯";
+}
+.altimeter [role="img"] {
+  width: var(--size-6);
+  height: var(--size-6);
+  /* lucide.dev "mountain-snow" at 2px stroke width, white */
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtbW91bnRhaW4tc25vdyI+PHBhdGggZD0ibTggMyA0IDggNS01IDUgMTVIMkw4IDN6Ii8+PHBhdGggZD0iTTQuMTQgMTUuMDhjMi42Mi0xLjU3IDUuMjQtMS40MyA3Ljg2LjQyIDIuNzQgMS45NCA1LjQ5IDIgOC4yMy4xOSIvPjwvc3ZnPg==);
+  background-size: contain;
+}
+.altimeter:not([data-available="true"]) [role="img"] {
+  /* lucide.dev "mountain-snow" at 2px stroke width, grey */
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImdyZXkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1tb3VudGFpbi1zbm93Ij48cGF0aCBkPSJtOCAzIDQgOCA1LTUgNSAxNUgyTDggM3oiLz48cGF0aCBkPSJNNC4xNCAxNS4wOGMyLjYyLTEuNTcgNS4yNC0xLjQzIDcuODYuNDIgMi43NCAxLjk0IDUuNDkgMiA4LjIzLjE5Ii8+PC9zdmc+);
+}
