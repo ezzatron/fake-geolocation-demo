@@ -1,8 +1,16 @@
-import { circle, type FeatureCollection } from "@turf/turf";
-import type { Feature, Geometry, LineString, Point, Polygon } from "geojson";
+import { circle } from "@turf/turf";
+import type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  LineString,
+  Point,
+  Polygon,
+} from "geojson";
 import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
 import styles from "./Map.module.css";
+import { Speedometer } from "./speedometer";
 
 const EMPTY_GEOJSON: FeatureCollection<Geometry> = {
   type: "FeatureCollection",
@@ -32,6 +40,9 @@ export default class Map extends Component<Props> {
         center: this.#lngLat,
       });
       this.#map = map;
+
+      this.#speedometer = new Speedometer();
+      map.addControl(this.#speedometer, "top-right");
 
       map.on("load", () => {
         map.addSource("accuracy", {
@@ -113,6 +124,7 @@ export default class Map extends Component<Props> {
     if (this.props.position !== position) {
       this.#accuracySource?.setData(this.#accuracyFeature);
       this.#positionSource?.setData(this.#positionFeature);
+      this.#speedometer?.setSpeed(this.props.position?.coords.speed ?? null);
     }
     if (this.props.route !== route) {
       const routeSource = this.#map?.getSource("route");
@@ -154,4 +166,5 @@ export default class Map extends Component<Props> {
   #map: MapboxMap | undefined;
   #accuracySource: GeoJSONSource | undefined;
   #positionSource: GeoJSONSource | undefined;
+  #speedometer: Speedometer | undefined;
 }

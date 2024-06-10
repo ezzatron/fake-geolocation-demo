@@ -14,6 +14,7 @@ import {
 } from "nvector-geodesy";
 
 // TODO: Implement a "player" that can play back a journey
+// TODO: Altimeter and compass
 
 export type AtLeastTwoPositions = [
   GeolocationPosition,
