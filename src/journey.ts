@@ -1,4 +1,4 @@
-import type { Feature, GeoJsonProperties, LineString } from "geojson";
+import type { Feature, GeoJsonProperties, LineString, Position } from "geojson";
 import {
   apply,
   degrees,
@@ -12,6 +12,9 @@ import {
   transform,
   transpose,
 } from "nvector-geodesy";
+
+// TODO: Expose geometry for rendering on a map
+// TODO: Implement a "player" that can play back a journey
 
 export type AtLeastTwoPositions = [
   GeolocationPosition,
@@ -283,7 +286,7 @@ export function createJourneyFromGeoJSON({
     // Skip positions without a time
     if (time == null) continue;
 
-    const [longitude, latitude, altitude] = coordinates[i];
+    const [longitude, latitude, altitude = null] = coordinates[i];
 
     positions.push({
       coords: {
@@ -305,6 +308,32 @@ export function createJourneyFromGeoJSON({
   if (!a || !b) throw new Error("Insufficient positions for a journey");
 
   return createJourney(a, b, ...positions);
+}
+
+export function geoJSONFromPositions(
+  ...positions: AtLeastTwoPositions
+): GeoJSONJourney {
+  const times: number[] = [];
+  const coordinates: Position[] = [];
+
+  for (const {
+    coords: { longitude, latitude, altitude },
+    timestamp,
+  } of positions) {
+    times.push(timestamp);
+
+    if (altitude == null) {
+      coordinates.push([longitude, latitude]);
+    } else {
+      coordinates.push([longitude, latitude, altitude]);
+    }
+  }
+
+  return {
+    type: "Feature",
+    properties: { coordinateProperties: { times } },
+    geometry: { type: "LineString", coordinates },
+  };
 }
 
 export type MapboxRouteWithDurations = {
