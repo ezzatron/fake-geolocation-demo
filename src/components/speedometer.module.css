@@ -10,16 +10,20 @@
   cursor: pointer;
   transition: transform 0.2s;
 }
+:global(:is(.mapboxgl-ctrl-top-right, .mapboxgl-ctrl-bottom-right))
+  .speedometer {
+  flex-direction: row-reverse;
+}
 .speedometer[data-mode="unavailable"] {
   color: grey;
 }
-.speedometer::before {
+.speedometer::after {
   content: attr(data-speed);
   display: block;
   font-size: var(--size-6);
   text-align: center;
 }
-.speedometer[data-mode="unavailable"]::before {
+.speedometer[data-mode="unavailable"]::after {
   content: "⋯";
 }
 .speedometer:hover {
