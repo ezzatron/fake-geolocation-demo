@@ -1,9 +1,10 @@
 import type { IControl } from "mapbox-gl";
 import styles from "./speedometer.module.css";
 
+const KPH = 3.6;
 const UNITS = {
   "mile-per-hour": 2.23694,
-  "kilometer-per-hour": 3.6,
+  "kilometer-per-hour": KPH,
 };
 
 type Unit = keyof typeof UNITS;
@@ -54,7 +55,7 @@ export class Speedometer implements IControl {
   #update(): void {
     if (this.#speed == null) {
       this.#container.removeAttribute("data-speed");
-      this.#container.removeAttribute("data-mode");
+      this.#container.dataset.mode = "unavailable";
     } else {
       // Convert m/s to MPH with no decimal places
       this.#container.dataset.speed = this.#formatSpeed(this.#speed);
@@ -73,13 +74,13 @@ export class Speedometer implements IControl {
   #mode(speed: number): Mode {
     if (speed === 0) {
       return "stopped";
-    } else if (speed < 1.8) {
+    } else if (speed < 7 / KPH) {
       return "walking";
-    } else if (speed < 6.5) {
+    } else if (speed < 30 / KPH) {
       return "biking";
-    } else if (speed < 85) {
+    } else if (speed < 300 / KPH) {
       return "driving";
-    } else if (speed < 300) {
+    } else if (speed < 1000 / KPH) {
       return "flying";
     } else {
       return "warp";

@@ -10,11 +10,17 @@
   cursor: pointer;
   transition: transform 0.2s;
 }
+.speedometer[data-mode="unavailable"] {
+  color: grey;
+}
 .speedometer::before {
   content: attr(data-speed);
   display: block;
   font-size: var(--size-6);
   text-align: center;
+}
+.speedometer[data-mode="unavailable"]::before {
+  content: "⋯";
 }
 .speedometer:hover {
   transform: scale(1.1);
@@ -24,27 +30,31 @@
   height: var(--size-6);
   background-size: contain;
 }
+.speedometer[data-mode="unavailable"] [role="img"] {
+  /* lucide.dev "gauge" at 2px stroke width, grey */
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImdyZXkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1nYXVnZSI+PHBhdGggZD0ibTEyIDE0IDQtNCIvPjxwYXRoIGQ9Ik0zLjM0IDE5YTEwIDEwIDAgMSAxIDE3LjMyIDAiLz48L3N2Zz4=);
+}
 .speedometer[data-mode="stopped"] [role="img"] {
-  /* lucide.dev "octagon-x" at 2px stroke width */
+  /* lucide.dev "octagon-x" at 2px stroke width, white */
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtb2N0YWdvbi14Ij48cG9seWdvbiBwb2ludHM9IjcuODYgMiAxNi4xNCAyIDIyIDcuODYgMjIgMTYuMTQgMTYuMTQgMjIgNy44NiAyMiAyIDE2LjE0IDIgNy44NiA3Ljg2IDIiLz48cGF0aCBkPSJtMTUgOS02IDYiLz48cGF0aCBkPSJtOSA5IDYgNiIvPjwvc3ZnPg==);
 }
 .speedometer[data-mode="walking"] [role="img"] {
-  /* lucide.dev "footprints" at 2px stroke width */
+  /* lucide.dev "footprints" at 2px stroke width, white */
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtZm9vdHByaW50cyI+PHBhdGggZD0iTTQgMTZ2LTIuMzhDNCAxMS41IDIuOTcgMTAuNSAzIDhjLjAzLTIuNzIgMS40OS02IDQuNS02QzkuMzcgMiAxMCAzLjggMTAgNS41YzAgMy4xMS0yIDUuNjYtMiA4LjY4VjE2YTIgMiAwIDEgMS00IDBaIi8+PHBhdGggZD0iTTIwIDIwdi0yLjM4YzAtMi4xMiAxLjAzLTMuMTIgMS01LjYyLS4wMy0yLjcyLTEuNDktNi00LjUtNkMxNC42MyA2IDE0IDcuOCAxNCA5LjVjMCAzLjExIDIgNS42NiAyIDguNjhWMjBhMiAyIDAgMSAwIDQgMFoiLz48cGF0aCBkPSJNMTYgMTdoNCIvPjxwYXRoIGQ9Ik00IDEzaDQiLz48L3N2Zz4=);
 }
 .speedometer[data-mode="biking"] [role="img"] {
-  /* lucide.dev "bike" at 2px stroke width */
+  /* lucide.dev "bike" at 2px stroke width, white */
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtYmlrZSI+PGNpcmNsZSBjeD0iMTguNSIgY3k9IjE3LjUiIHI9IjMuNSIvPjxjaXJjbGUgY3g9IjUuNSIgY3k9IjE3LjUiIHI9IjMuNSIvPjxjaXJjbGUgY3g9IjE1IiBjeT0iNSIgcj0iMSIvPjxwYXRoIGQ9Ik0xMiAxNy41VjE0bC0zLTMgNC0zIDIgM2gyIi8+PC9zdmc+);
 }
 .speedometer[data-mode="driving"] [role="img"] {
-  /* lucide.dev "car" at 2px stroke width */
+  /* lucide.dev "car" at 2px stroke width, white */
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtY2FyIj48cGF0aCBkPSJNMTkgMTdoMmMuNiAwIDEtLjQgMS0xdi0zYzAtLjktLjctMS43LTEuNS0xLjlDMTguNyAxMC42IDE2IDEwIDE2IDEwcy0xLjMtMS40LTIuMi0yLjNjLS41LS40LTEuMS0uNy0xLjgtLjdINWMtLjYgMC0xLjEuNC0xLjQuOWwtMS40IDIuOUEzLjcgMy43IDAgMCAwIDIgMTJ2NGMwIC42LjQgMSAxIDFoMiIvPjxjaXJjbGUgY3g9IjciIGN5PSIxNyIgcj0iMiIvPjxwYXRoIGQ9Ik05IDE3aDYiLz48Y2lyY2xlIGN4PSIxNyIgY3k9IjE3IiByPSIyIi8+PC9zdmc+);
 }
 .speedometer[data-mode="flying"] [role="img"] {
-  /* lucide.dev "plane" at 2px stroke width */
+  /* lucide.dev "plane" at 2px stroke width, white */
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtcGxhbmUiPjxwYXRoIGQ9Ik0xNy44IDE5LjIgMTYgMTFsMy41LTMuNUMyMSA2IDIxLjUgNCAyMSAzYy0xLS41LTMgMC00LjUgMS41TDEzIDggNC44IDYuMmMtLjUtLjEtLjkuMS0xLjEuNWwtLjMuNWMtLjIuNS0uMSAxIC4zIDEuM0w5IDEybC0yIDNINGwtMSAxIDMgMiAyIDMgMS0xdi0zbDMtMiAzLjUgNS4zYy4zLjQuOC41IDEuMy4zbC41LS4yYy40LS4zLjYtLjcuNS0xLjJ6Ii8+PC9zdmc+);
 }
 .speedometer[data-mode="warp"] [role="img"] {
-  /* lucide.dev "rocket" at 2px stroke width */
+  /* lucide.dev "rocket" at 2px stroke width, white */
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9Imx1Y2lkZSBsdWNpZGUtcm9ja2V0Ij48cGF0aCBkPSJNNC41IDE2LjVjLTEuNSAxLjI2LTIgNS0yIDVzMy43NC0uNSA1LTJjLjcxLS44NC43LTIuMTMtLjA5LTIuOTFhMi4xOCAyLjE4IDAgMCAwLTIuOTEtLjA5eiIvPjxwYXRoIGQ9Im0xMiAxNS0zLTNhMjIgMjIgMCAwIDEgMi0zLjk1QTEyLjg4IDEyLjg4IDAgMCAxIDIyIDJjMCAyLjcyLS43OCA3LjUtNiAxMWEyMi4zNSAyMi4zNSAwIDAgMS00IDJ6Ii8+PHBhdGggZD0iTTkgMTJINHMuNTUtMy4wMyAyLTRjMS42Mi0xLjA4IDUgMCA1IDAiLz48cGF0aCBkPSJNMTIgMTV2NXMzLjAzLS41NSA0LTJjMS4wOC0xLjYyIDAtNSAwLTUiLz48L3N2Zz4=);
 }

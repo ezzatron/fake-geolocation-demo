@@ -6,7 +6,6 @@ import Map from "../components/Map";
 import {
   boundingBox,
   createJourneyFromMapboxRoute,
-  findFastestSegment,
   geoJSONFromPositions,
   lerpPosition,
   type MapboxRouteWithDurations,
@@ -19,9 +18,9 @@ const journey = createJourneyFromMapboxRoute(
   directionsJSON.routes[0] as MapboxRouteWithDurations,
 );
 // const journey = createJourneyFromGeoJSON(geoJSON as GeoJSONJourney);
-const fastestSegment = findFastestSegment(...journey.segments);
-// const startTime = 0;
-const startTime = journey.timeToOffsetTime(fastestSegment[0].timestamp);
+const startTime = 0;
+// const fastestSegment = findFastestSegment(...journey.segments);
+// const startTime = journey.timeToOffsetTime(fastestSegment[0].timestamp);
 
 const journeyBounds = boundingBox(...journey.positions);
 const route = geoJSONFromPositions(...journey.positions);
