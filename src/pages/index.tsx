@@ -6,6 +6,7 @@ import Map from "../components/Map";
 import {
   boundingBox,
   createJourneyFromMapboxRoute,
+  geoJSONFromPositions,
   lerpPosition,
   type MapboxRouteWithDurations,
 } from "../journey";
@@ -15,6 +16,7 @@ const journey = createJourneyFromMapboxRoute(
   directionsJSON.routes[0] as MapboxRouteWithDurations,
 );
 const journeyBounds = boundingBox(...journey.positions);
+const route = geoJSONFromPositions(...journey.positions);
 
 type Props = {
   mapboxToken: string;
@@ -101,6 +103,7 @@ export default function Demo({ mapboxToken }: Props) {
         mapboxToken={mapboxToken}
         bounds={journeyBounds}
         position={position}
+        route={route}
       />
     </>
   );

@@ -13,7 +13,6 @@ import {
   transpose,
 } from "nvector-geodesy";
 
-// TODO: Expose geometry for rendering on a map
 // TODO: Implement a "player" that can play back a journey
 
 export type AtLeastTwoPositions = [

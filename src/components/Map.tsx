@@ -1,13 +1,19 @@
-import { circle } from "@turf/turf";
-import type { Feature, Point, Polygon } from "geojson";
+import { circle, type FeatureCollection } from "@turf/turf";
+import type { Feature, Geometry, LineString, Point, Polygon } from "geojson";
 import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
 import styles from "./Map.module.css";
+
+const EMPTY_GEOJSON: FeatureCollection<Geometry> = {
+  type: "FeatureCollection",
+  features: [],
+};
 
 type Props = {
   mapboxToken: string;
   bounds: [number, number, number, number];
   position: GeolocationPosition | undefined;
+  route: Feature<LineString> | undefined;
 };
 
 export default class Map extends Component<Props> {
@@ -42,6 +48,24 @@ export default class Map extends Component<Props> {
           },
         });
 
+        map.addSource("route", {
+          type: "geojson",
+          data: this.props.route ?? EMPTY_GEOJSON,
+        });
+        map.addLayer({
+          id: "route",
+          type: "line",
+          source: "route",
+          layout: {
+            "line-cap": "round",
+            "line-join": "round",
+          },
+          paint: {
+            "line-color": "#4882c5",
+            "line-width": 7,
+          },
+        });
+
         map.addSource("position", {
           type: "geojson",
           data: this.#positionFeature,
@@ -51,8 +75,8 @@ export default class Map extends Component<Props> {
           type: "circle",
           source: "position",
           paint: {
-            "circle-radius": 6,
-            "circle-color": "#4dabf7",
+            "circle-radius": 7,
+            "circle-color": "#a5d8ff",
           },
         });
       });
@@ -85,10 +109,16 @@ export default class Map extends Component<Props> {
     this.#map?.remove();
   }
 
-  componentDidUpdate({ position }: Props): void {
+  componentDidUpdate({ position, route }: Props): void {
     if (this.props.position !== position) {
       this.#accuracySource?.setData(this.#accuracyFeature);
       this.#positionSource?.setData(this.#positionFeature);
+    }
+    if (this.props.route !== route) {
+      const routeSource = this.#map?.getSource("route");
+      if (routeSource?.type === "geojson") {
+        routeSource.setData(this.props.route ?? EMPTY_GEOJSON);
+      }
     }
   }
 
