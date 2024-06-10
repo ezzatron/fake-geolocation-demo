@@ -10,6 +10,7 @@ import type {
 import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
 import styles from "./Map.module.css";
+import { Altimeter } from "./map-controls/altimeter";
 import { Speedometer } from "./map-controls/speedometer";
 
 const EMPTY_GEOJSON: FeatureCollection<Geometry> = {
@@ -42,7 +43,10 @@ export default class Map extends Component<Props> {
       this.#map = map;
 
       this.#speedometer = new Speedometer();
+      this.#altimeter = new Altimeter();
+
       map.addControl(this.#speedometer, "top-right");
+      map.addControl(this.#altimeter, "top-right");
 
       map.on("load", () => {
         map.addSource("accuracy", {
@@ -125,6 +129,9 @@ export default class Map extends Component<Props> {
       this.#accuracySource?.setData(this.#accuracyFeature);
       this.#positionSource?.setData(this.#positionFeature);
       this.#speedometer?.setSpeed(this.props.position?.coords.speed ?? null);
+      this.#altimeter?.setAltitude(
+        this.props.position?.coords.altitude ?? null,
+      );
     }
     if (this.props.route !== route) {
       const routeSource = this.#map?.getSource("route");
@@ -167,4 +174,5 @@ export default class Map extends Component<Props> {
   #accuracySource: GeoJSONSource | undefined;
   #positionSource: GeoJSONSource | undefined;
   #speedometer: Speedometer | undefined;
+  #altimeter: Altimeter | undefined;
 }

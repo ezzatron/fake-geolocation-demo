@@ -32,28 +32,28 @@ it("creates a journey from a Mapbox route", () => {
   const journey = createJourneyFromMapboxRoute(route, 1111);
 
   expect(journey.segmentAtTime(0)).toMatchObject([
-    { coords: { longitude: 1, latitude: 11 } },
-    { coords: { longitude: 2, latitude: 22 } },
+    { coords: { longitude: 1, latitude: 11, altitude: null } },
+    { coords: { longitude: 2, latitude: 22, altitude: null } },
     -Infinity,
   ]);
   expect(journey.segmentAtTime(1111)).toMatchObject([
-    { coords: { longitude: 1, latitude: 11 } },
-    { coords: { longitude: 2, latitude: 22 } },
+    { coords: { longitude: 1, latitude: 11, altitude: null } },
+    { coords: { longitude: 2, latitude: 22, altitude: null } },
     0,
   ]);
   expect(journey.segmentAtTime(2222)).toMatchObject([
-    { coords: { longitude: 2, latitude: 22 } },
-    { coords: { longitude: 3, latitude: 33 } },
+    { coords: { longitude: 2, latitude: 22, altitude: null } },
+    { coords: { longitude: 3, latitude: 33, altitude: null } },
     0,
   ]);
   expect(journey.segmentAtTime(4444)).toMatchObject([
-    { coords: { longitude: 3, latitude: 33 } },
-    { coords: { longitude: 4, latitude: 44 } },
+    { coords: { longitude: 3, latitude: 33, altitude: null } },
+    { coords: { longitude: 4, latitude: 44, altitude: null } },
     0,
   ]);
   expect(journey.segmentAtTime(7777)).toMatchObject([
-    { coords: { longitude: 3, latitude: 33 } },
-    { coords: { longitude: 4, latitude: 44 } },
+    { coords: { longitude: 3, latitude: 33, altitude: null } },
+    { coords: { longitude: 4, latitude: 44, altitude: null } },
     Infinity,
   ]);
 });
