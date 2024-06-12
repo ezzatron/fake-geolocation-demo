@@ -23,6 +23,7 @@ import {
   PlaneIcon,
   RocketIcon,
 } from "lucide-react";
+import CompassRing from "../components/CompassRing";
 import directionsJSON from "../mapbox-directions.json";
 // import geoJSON from "../journey.json";
 
@@ -114,7 +115,9 @@ export default function Demo({ mapboxToken }: Props) {
         <title>Fake Geolocation Demo</title>
       </Head>
 
-      <div className={styles.icons}>
+      <div className={styles.sprites}>
+        <CompassRing />
+
         <BikeIcon id="bike-icon" />
         <CarIcon id="car-icon" />
         <Footprints id="footprints-icon" />

@@ -19,7 +19,7 @@
 .altimeter::after {
   content: attr(data-altitude);
   display: block;
-  font-size: var(--size-6);
+  font-size: var(--font-size-4);
 }
 .altimeter:not([data-available="true"])::after {
   content: "⋯";
