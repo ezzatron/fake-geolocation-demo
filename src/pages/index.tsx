@@ -23,6 +23,7 @@ import {
   PlaneIcon,
   RocketIcon,
 } from "lucide-react";
+import CompassPointer from "../components/CompassPointer";
 import CompassRing from "../components/CompassRing";
 import directionsJSON from "../mapbox-directions.json";
 // import geoJSON from "../journey.json";
@@ -117,6 +118,7 @@ export default function Demo({ mapboxToken }: Props) {
 
       <div className={styles.sprites}>
         <CompassRing />
+        <CompassPointer />
 
         <BikeIcon id="bike-icon" />
         <CarIcon id="car-icon" />

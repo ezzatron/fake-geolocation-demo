@@ -23,7 +23,8 @@ export class Compass implements IControl {
     this.#container.className = styles.compass;
     this.#container.title = "Change camera";
 
-    this.#container.appendChild(this.#createRing());
+    this.#container.appendChild(this.#createPart("ring"));
+    this.#container.appendChild(this.#createPart("pointer"));
 
     this.#container.addEventListener("click", () => {
       this.#toggleCamera();
@@ -92,6 +93,7 @@ export class Compass implements IControl {
     } else {
       this.#container.dataset.available = "true";
       this.#container.dataset.direction = this.#direction(heading);
+      this.#container.style.setProperty("--heading", `${heading}deg`);
     }
 
     if (
@@ -153,21 +155,21 @@ export class Compass implements IControl {
     return followZoom ? Number(followZoom) : 16;
   }
 
-  #createRing(): SVGSVGElement {
+  #createPart(part: string): SVGSVGElement {
     const viewBox = document
-      .getElementById("compass-ring")
+      .getElementById(`compass-${part}`)
       ?.getAttribute("viewBox");
 
     if (!viewBox) throw new Error("Missing viewBox");
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.classList.add(styles.ring);
+    svg.classList.add(styles[part]);
     svg.setAttribute("viewBox", viewBox);
     svg.role = "img";
     svg.setAttribute("aria-hidden", "true");
 
     const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-    use.href.baseVal = "#compass-ring";
+    use.href.baseVal = `#compass-${part}`;
     svg.appendChild(use);
 
     return svg;
