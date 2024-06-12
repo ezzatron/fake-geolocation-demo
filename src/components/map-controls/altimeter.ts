@@ -1,6 +1,12 @@
 import type { IControl } from "mapbox-gl";
 import styles from "./altimeter.module.css";
 
+const UNITS = {
+  meter: 1,
+  foot: 3.28084,
+};
+type Unit = keyof typeof UNITS;
+
 export type Mode =
   | "stopped"
   | "walking"
@@ -12,13 +18,19 @@ export type Mode =
 export class Altimeter implements IControl {
   constructor() {
     this.altitude = null;
+    this.#unit = this.#readUnit();
 
     this.#container = document.createElement("div");
     this.#container.className = styles.altimeter;
+    this.#container.title = "Click to toggle units";
 
     const icon = document.createElement("div");
     icon.role = "img";
     icon.setAttribute("aria-hidden", "true");
+
+    this.#container.addEventListener("click", () => {
+      this.#toggleUnit();
+    });
 
     this.#container.appendChild(icon);
   }
@@ -49,12 +61,33 @@ export class Altimeter implements IControl {
   #formatAltitude(altitude: number): string {
     return new Intl.NumberFormat("en-US", {
       style: "unit",
-      unit: "meter",
+      unit: this.#unit,
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
-    }).format(altitude);
+    }).format(altitude * UNITS[this.#unit]);
+  }
+
+  #toggleUnit(): void {
+    this.#unit = this.#unit === "foot" ? "meter" : "foot";
+    this.#update();
+    window.localStorage.setItem("altimeter-unit", this.#unit);
+  }
+
+  #readUnit(): Unit {
+    const unit = window.localStorage.getItem("altimeter-unit");
+
+    return unit && isValidUnit(unit)
+      ? unit
+      : navigator.language === "en-US"
+        ? "foot"
+        : "meter";
   }
 
   #container: HTMLDivElement;
   altitude: number | null;
+  #unit: Unit;
+}
+
+function isValidUnit(unit: string): unit is Unit {
+  return unit in UNITS;
 }

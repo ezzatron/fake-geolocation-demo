@@ -20,9 +20,7 @@ export type Mode =
 export class Speedometer implements IControl {
   constructor() {
     this.#speed = null;
-    this.#unit =
-      (window.localStorage.getItem("speedometer-unit") as Unit) ??
-      (navigator.language === "en-US" ? "mile-per-hour" : "kilometer-per-hour");
+    this.#unit = this.#readUnit();
 
     this.#container = document.createElement("div");
     this.#container.className = styles.speedometer;
@@ -95,7 +93,21 @@ export class Speedometer implements IControl {
     window.localStorage.setItem("speedometer-unit", this.#unit);
   }
 
+  #readUnit(): Unit {
+    const unit = window.localStorage.getItem("speedometer-unit");
+
+    return unit && isValidUnit(unit)
+      ? unit
+      : navigator.language === "en-US"
+        ? "mile-per-hour"
+        : "kilometer-per-hour";
+  }
+
   #container: HTMLDivElement;
   #speed: number | null;
   #unit: Unit;
+}
+
+function isValidUnit(unit: string): unit is Unit {
+  return unit in UNITS;
 }
