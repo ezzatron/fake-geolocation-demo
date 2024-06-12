@@ -6,6 +6,7 @@ import type {
   MapMouseEvent,
   MapTouchEvent,
 } from "mapbox-gl";
+import throttle from "throttleit";
 import styles from "./compass.module.css";
 
 export class Compass implements IControl {
@@ -52,6 +53,25 @@ export class Compass implements IControl {
       this.#followZoom = this.#map.getZoom();
       window.localStorage.setItem("follow-zoom", String(this.#followZoom));
     };
+
+    this.#updateFollowCamera = throttle(() => {
+      if (!this.#map || !this.#position) {
+        return;
+      }
+
+      const target: EaseToOptions = {
+        center: [
+          this.#position.coords.longitude,
+          this.#position.coords.latitude,
+        ],
+        bearing: this.#position.coords.heading ?? 0,
+        pitch: 60,
+      };
+      if (this.#map.getZoom() !== this.#followZoom) {
+        target.zoom = this.#followZoom;
+      }
+      this.#map.easeTo(target);
+    }, 100);
   }
 
   onAdd(map: Map): HTMLElement {
@@ -94,25 +114,9 @@ export class Compass implements IControl {
 
     this.#updateBearings();
 
-    if (
-      this.#isInteracting ||
-      !this.#map ||
-      !this.#position ||
-      this.#camera !== "follow"
-    ) {
-      return;
+    if (!this.#isInteracting && this.#camera === "follow") {
+      this.#updateFollowCamera();
     }
-
-    const target: EaseToOptions = {
-      center: [this.#position.coords.longitude, this.#position.coords.latitude],
-      bearing: heading ?? 0,
-      pitch: 60,
-    };
-    if (this.#map.getZoom() !== this.#followZoom) {
-      target.zoom = this.#followZoom;
-    }
-
-    this.#map.easeTo(target);
   }
 
   #updateBearings(): void {
@@ -198,6 +202,7 @@ export class Compass implements IControl {
   #onInteractEnd: (event: MapMouseEvent | MapTouchEvent) => void;
   #onMove: (event: MapMouseEvent | MapTouchEvent) => void;
   #onZoomEnd: (event: MapMouseEvent | MapTouchEvent) => void;
+  #updateFollowCamera: () => void;
 }
 
 function isValidCamera(camera: unknown): camera is Camera {
