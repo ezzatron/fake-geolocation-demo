@@ -25,6 +25,9 @@
 .altimeter:not([data-available="true"])::after {
   content: "⋯";
 }
+.altimeter:hover {
+  transform: scale(1.1);
+}
 .altimeter [role="img"] {
   width: var(--size-6);
   height: var(--size-6);
