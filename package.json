@@ -10,7 +10,8 @@
     "nvector-geodesy": "^0.6.0",
     "open-props": "^1.5.15",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "throttleit": "^2.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.38.0",
