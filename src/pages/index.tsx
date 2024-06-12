@@ -11,7 +11,18 @@ import {
   lerpPosition,
   type MapboxRouteWithDurations,
 } from "../journey";
+import styles from "./index.module.css";
 
+import {
+  BikeIcon,
+  CarIcon,
+  Footprints,
+  GaugeIcon,
+  MountainSnowIcon,
+  OctagonXIcon,
+  PlaneIcon,
+  RocketIcon,
+} from "lucide-react";
 import directionsJSON from "../mapbox-directions.json";
 // import geoJSON from "../journey.json";
 
@@ -106,6 +117,17 @@ export default function Demo({ mapboxToken }: Props) {
       <Head>
         <title>Fake Geolocation Demo</title>
       </Head>
+
+      <div className={styles.icons}>
+        <BikeIcon id="bike-icon" />
+        <CarIcon id="car-icon" />
+        <Footprints id="footprints-icon" />
+        <GaugeIcon id="gauge-icon" />
+        <MountainSnowIcon id="mountain-snow-icon" />
+        <OctagonXIcon id="octagon-x-icon" />
+        <PlaneIcon id="plane-icon" />
+        <RocketIcon id="rocket-icon" />
+      </div>
 
       <Map
         mapboxToken={mapboxToken}

@@ -1,4 +1,5 @@
 import type { IControl } from "mapbox-gl";
+import { createIcon } from "./create-icon";
 import styles from "./speedometer.module.css";
 
 const KPH = 3.6;
@@ -26,15 +27,17 @@ export class Speedometer implements IControl {
     this.#container.className = styles.speedometer;
     this.#container.title = "Click to toggle units";
 
-    const icon = document.createElement("div");
-    icon.role = "img";
-    icon.setAttribute("aria-hidden", "true");
+    this.#container.appendChild(createIcon("bike"));
+    this.#container.appendChild(createIcon("car"));
+    this.#container.appendChild(createIcon("footprints"));
+    this.#container.appendChild(createIcon("gauge"));
+    this.#container.appendChild(createIcon("octagon-x"));
+    this.#container.appendChild(createIcon("plane"));
+    this.#container.appendChild(createIcon("rocket"));
 
     this.#container.addEventListener("click", () => {
       this.#toggleUnit();
     });
-
-    this.#container.appendChild(icon);
   }
 
   onAdd(): HTMLElement {
