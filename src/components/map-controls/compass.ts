@@ -39,10 +39,7 @@ export class Compass implements IControl {
     };
 
     this.#onMove = ({ originalEvent }) => {
-      if (this.#map) {
-        const bearing = this.#map.getBearing();
-        this.#container.style.setProperty("--bearing", `${bearing}deg`);
-      }
+      this.#updateBearings();
 
       if (this.#isInteracting && originalEvent && this.#camera === "follow") {
         this.#camera = "free";
@@ -93,8 +90,9 @@ export class Compass implements IControl {
     } else {
       this.#container.dataset.available = "true";
       this.#container.dataset.direction = this.#direction(heading);
-      this.#container.style.setProperty("--heading", `${heading}deg`);
     }
+
+    this.#updateBearings();
 
     if (
       this.#isInteracting ||
@@ -115,6 +113,19 @@ export class Compass implements IControl {
     }
 
     this.#map.easeTo(target);
+  }
+
+  #updateBearings(): void {
+    const heading = this.#position?.coords.heading;
+    if (heading == null) this.#container.style.removeProperty("--heading");
+
+    if (!this.#map) return;
+
+    const bearing = this.#map.getBearing();
+    this.#container.style.setProperty("--bearing", `${bearing}deg`);
+    if (heading != null) {
+      this.#container.style.setProperty("--heading", `${heading}deg`);
+    }
   }
 
   #direction(heading: number): string {
