@@ -20,7 +20,6 @@
   content: attr(data-altitude);
   display: block;
   font-size: var(--size-6);
-  text-align: center;
 }
 .altimeter:not([data-available="true"])::after {
   content: "⋯";

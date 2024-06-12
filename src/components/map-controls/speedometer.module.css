@@ -21,7 +21,6 @@
   content: attr(data-speed);
   display: block;
   font-size: var(--size-6);
-  text-align: center;
 }
 .speedometer:not([data-available="true"])::after {
   content: "⋯";
