@@ -1,5 +1,6 @@
 import type { IControl } from "mapbox-gl";
 import styles from "./altimeter.module.css";
+import { createIcon } from "./create-icon";
 
 const UNITS = {
   meter: 1,
@@ -24,15 +25,11 @@ export class Altimeter implements IControl {
     this.#container.className = styles.altimeter;
     this.#container.title = "Click to toggle units";
 
-    const icon = document.createElement("div");
-    icon.role = "img";
-    icon.setAttribute("aria-hidden", "true");
+    this.#container.appendChild(createIcon("mountain-snow"));
 
     this.#container.addEventListener("click", () => {
       this.#toggleUnit();
     });
-
-    this.#container.appendChild(icon);
   }
 
   onAdd(): HTMLElement {
