@@ -14,7 +14,7 @@
   flex-direction: row-reverse;
 }
 .altimeter:not([data-available="true"]) {
-  color: grey;
+  color: var(--gray-6);
 }
 .altimeter::after {
   content: attr(data-altitude);

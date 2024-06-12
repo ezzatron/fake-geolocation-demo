@@ -79,10 +79,6 @@ export default function Demo({ mapboxToken }: Props) {
       );
       const coords = lerpPosition(a, b, t);
       user.jumpToCoordinates(coords);
-
-      const { altitude, heading } = coords;
-
-      console.log({ altitude, heading });
     }, 100);
 
     // const switchAPIsIntervalId = setInterval(() => {
