@@ -17,7 +17,7 @@ export type Mode =
 
 export class Altimeter implements IControl {
   constructor() {
-    this.altitude = null;
+    this.#altitude = null;
     this.#unit = this.#readUnit();
 
     this.#container = document.createElement("div");
@@ -44,17 +44,17 @@ export class Altimeter implements IControl {
   }
 
   setAltitude(altitude: number | null): void {
-    this.altitude = altitude;
+    this.#altitude = altitude;
     this.#update();
   }
 
   #update(): void {
-    if (this.altitude == null) {
+    if (this.#altitude == null) {
       this.#container.dataset.available = "false";
       this.#container.removeAttribute("data-altitude");
     } else {
       this.#container.dataset.available = "true";
-      this.#container.dataset.altitude = this.#formatAltitude(this.altitude);
+      this.#container.dataset.altitude = this.#formatAltitude(this.#altitude);
     }
   }
 
@@ -84,7 +84,7 @@ export class Altimeter implements IControl {
   }
 
   #container: HTMLDivElement;
-  altitude: number | null;
+  #altitude: number | null;
   #unit: Unit;
 }
 
