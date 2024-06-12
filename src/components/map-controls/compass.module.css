@@ -1,0 +1,30 @@
+.compass {
+  composes: mapboxgl-ctrl from global;
+
+  display: grid;
+  place-content: center;
+  grid-template-areas: cell;
+  width: var(--size-9);
+  height: var(--size-9);
+  font-weight: var(--font-weight-7);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  border: 1px solid red;
+}
+.compass:not([data-available="true"]) {
+  color: var(--gray-6);
+}
+.compass:hover {
+  transform: scale(1.1);
+}
+.compass::after {
+  content: attr(data-heading);
+  grid-area: cell;
+  display: block;
+  font-size: var(--size-3);
+  text-align: center;
+
+  border: 1px solid red;
+}

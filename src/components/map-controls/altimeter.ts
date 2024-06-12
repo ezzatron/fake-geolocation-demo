@@ -23,7 +23,7 @@ export class Altimeter implements IControl {
 
     this.#container = document.createElement("div");
     this.#container.className = styles.altimeter;
-    this.#container.title = "Click to toggle units";
+    this.#container.title = "Toggle units";
 
     this.#container.appendChild(createIcon("mountain-snow"));
 

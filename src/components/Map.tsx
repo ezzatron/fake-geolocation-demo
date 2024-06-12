@@ -11,6 +11,7 @@ import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
 import styles from "./Map.module.css";
 import { Altimeter } from "./map-controls/altimeter";
+import { Compass } from "./map-controls/compass";
 import { Speedometer } from "./map-controls/speedometer";
 
 const EMPTY_GEOJSON: FeatureCollection<Geometry> = {
@@ -32,21 +33,25 @@ export default class Map extends Component<Props> {
     this.#setRef = (container) => {
       if (!container) return;
 
+      const fitBoundsOptions = { padding: 64 };
+
       const map = new MapboxMap({
         accessToken: this.props.mapboxToken,
         container,
         style: "mapbox://styles/mapbox/dark-v11",
         bounds: this.props.bounds,
-        fitBoundsOptions: { padding: 64 },
+        fitBoundsOptions,
         center: this.#lngLat,
       });
       this.#map = map;
 
       this.#speedometer = new Speedometer();
       this.#altimeter = new Altimeter();
+      this.#compass = new Compass(this.props.bounds, fitBoundsOptions);
 
       map.addControl(this.#speedometer, "top-right");
       map.addControl(this.#altimeter, "top-right");
+      map.addControl(this.#compass, "top-right");
 
       map.on("load", () => {
         map.addSource("accuracy", {
@@ -132,6 +137,7 @@ export default class Map extends Component<Props> {
       this.#altimeter?.setAltitude(
         this.props.position?.coords.altitude ?? null,
       );
+      this.#compass?.setPosition(this.props.position);
     }
     if (this.props.route !== route) {
       const routeSource = this.#map?.getSource("route");
@@ -175,4 +181,5 @@ export default class Map extends Component<Props> {
   #positionSource: GeoJSONSource | undefined;
   #speedometer: Speedometer | undefined;
   #altimeter: Altimeter | undefined;
+  #compass: Compass | undefined;
 }

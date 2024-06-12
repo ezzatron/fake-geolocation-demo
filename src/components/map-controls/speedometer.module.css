@@ -15,7 +15,7 @@
   flex-direction: row-reverse;
 }
 .speedometer:not([data-available="true"]) {
-  color: grey;
+  color: var(--gray-6);
 }
 .speedometer::after {
   content: attr(data-speed);
