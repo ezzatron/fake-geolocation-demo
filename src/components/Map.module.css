@@ -16,19 +16,45 @@
 }
 
 /* paddings for controls that are safe area aware */
-.map :global(.mapboxgl-ctrl-top-left .mapboxgl-ctrl) {
+.map :global(.mapboxgl-ctrl-top-left) {
   margin-top: var(--size-padding-vertical);
   margin-left: var(--size-padding-horizontal);
 }
-.map :global(.mapboxgl-ctrl-top-right .mapboxgl-ctrl) {
+.map :global(.mapboxgl-ctrl-top-right) {
   margin-top: var(--size-padding-vertical);
   margin-right: var(--size-padding-horizontal);
 }
-.map :global(.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl) {
+.map :global(.mapboxgl-ctrl-bottom-right) {
   margin-right: var(--size-padding-horizontal);
   margin-bottom: var(--size-padding-vertical);
 }
-.map :global(.mapboxgl-ctrl-bottom-left .mapboxgl-ctrl) {
+.map :global(.mapboxgl-ctrl-bottom-left) {
   margin-bottom: var(--size-padding-vertical);
   margin-left: var(--size-padding-horizontal);
+}
+.map
+  :global(
+    :is(.mapboxgl-ctrl-top-left, .mapboxgl-ctrl-bottom-left) .mapboxgl-ctrl
+  ) {
+  margin-left: 0;
+}
+.map
+  :global(
+    :is(.mapboxgl-ctrl-top-right, .mapboxgl-ctrl-bottom-right) .mapboxgl-ctrl
+  ) {
+  margin-right: 0;
+}
+.map
+  :global(
+    :is(.mapboxgl-ctrl-top-left, .mapboxgl-ctrl-top-right)
+      .mapboxgl-ctrl:first-child
+  ) {
+  margin-top: 0;
+}
+.map
+  :global(
+    :is(.mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right)
+      .mapboxgl-ctrl:last-child
+  ) {
+  margin-bottom: 0;
 }
