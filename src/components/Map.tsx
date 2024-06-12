@@ -51,7 +51,7 @@ export default class Map extends Component<Props> {
 
       map.addControl(this.#speedometer, "top-right");
       map.addControl(this.#altimeter, "top-right");
-      map.addControl(this.#compass, "top-right");
+      map.addControl(this.#compass, "top-left");
 
       map.on("load", () => {
         map.addSource("accuracy", {

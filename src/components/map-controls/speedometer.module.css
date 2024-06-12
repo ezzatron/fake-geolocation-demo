@@ -20,7 +20,7 @@
 .speedometer::after {
   content: attr(data-speed);
   display: block;
-  font-size: var(--size-6);
+  font-size: var(--font-size-4);
 }
 .speedometer:not([data-available="true"])::after {
   content: "⋯";

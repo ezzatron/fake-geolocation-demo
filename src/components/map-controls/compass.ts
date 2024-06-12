@@ -14,14 +14,16 @@ export class Compass implements IControl {
     fitBoundsOptions: FitBoundsOptions,
   ) {
     this.#camera = this.#readCamera();
+    this.#followZoom = this.#readFollowZoom();
     this.#bounds = bounds;
     this.#fitBoundsOptions = fitBoundsOptions;
-    this.#followZoom = 16;
     this.#isInteracting = false;
 
     this.#container = document.createElement("div");
     this.#container.className = styles.compass;
     this.#container.title = "Change camera";
+
+    this.#container.appendChild(this.#createRing());
 
     this.#container.addEventListener("click", () => {
       this.#toggleCamera();
@@ -35,7 +37,12 @@ export class Compass implements IControl {
       this.#isInteracting = false;
     };
 
-    this.#onMoveStart = ({ originalEvent }) => {
+    this.#onMove = ({ originalEvent }) => {
+      if (this.#map) {
+        const bearing = this.#map.getBearing();
+        this.#container.style.setProperty("--bearing", `${bearing}deg`);
+      }
+
       if (this.#isInteracting && originalEvent && this.#camera === "follow") {
         this.#camera = "free";
       }
@@ -45,6 +52,7 @@ export class Compass implements IControl {
       if (!originalEvent || !this.#map || this.#camera !== "follow") return;
 
       this.#followZoom = this.#map.getZoom();
+      window.localStorage.setItem("follow-zoom", String(this.#followZoom));
     };
   }
 
@@ -54,7 +62,7 @@ export class Compass implements IControl {
     map.on("mouseup", this.#onInteractEnd);
     map.on("touchstart", this.#onInteractStart);
     map.on("touchend", this.#onInteractEnd);
-    map.on("movestart", this.#onMoveStart);
+    map.on("move", this.#onMove);
     map.on("zoomend", this.#onZoomEnd);
 
     return this.#container;
@@ -65,7 +73,7 @@ export class Compass implements IControl {
     map.off("mouseup", this.#onInteractEnd);
     map.off("touchstart", this.#onInteractStart);
     map.off("touchend", this.#onInteractEnd);
-    map.off("movestart", this.#onMoveStart);
+    map.off("move", this.#onMove);
     map.off("zoomend", this.#onZoomEnd);
     this.#container.parentElement?.removeChild(this.#container);
   }
@@ -80,10 +88,10 @@ export class Compass implements IControl {
 
     if (heading == null) {
       this.#container.dataset.available = "false";
-      this.#container.removeAttribute("data-heading");
+      this.#container.removeAttribute("data-direction");
     } else {
       this.#container.dataset.available = "true";
-      this.#container.dataset.heading = this.#formatHeading(heading);
+      this.#container.dataset.direction = this.#direction(heading);
     }
 
     if (
@@ -107,7 +115,7 @@ export class Compass implements IControl {
     this.#map.easeTo(target);
   }
 
-  #formatHeading(heading: number): string {
+  #direction(heading: number): string {
     heading = (heading + 360) % 360;
 
     if (heading < 22.5) return "N";
@@ -139,6 +147,32 @@ export class Compass implements IControl {
     return isValidCamera(camera) ? camera : "follow";
   }
 
+  #readFollowZoom(): number {
+    const followZoom = window.localStorage.getItem("follow-zoom");
+
+    return followZoom ? Number(followZoom) : 16;
+  }
+
+  #createRing(): SVGSVGElement {
+    const viewBox = document
+      .getElementById("compass-ring")
+      ?.getAttribute("viewBox");
+
+    if (!viewBox) throw new Error("Missing viewBox");
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.classList.add(styles.ring);
+    svg.setAttribute("viewBox", viewBox);
+    svg.role = "img";
+    svg.setAttribute("aria-hidden", "true");
+
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.href.baseVal = "#compass-ring";
+    svg.appendChild(use);
+
+    return svg;
+  }
+
   #container: HTMLDivElement;
   #map: Map | undefined;
   #position: GeolocationPosition | undefined;
@@ -149,7 +183,7 @@ export class Compass implements IControl {
   #isInteracting: boolean;
   #onInteractStart: (event: MapMouseEvent | MapTouchEvent) => void;
   #onInteractEnd: (event: MapMouseEvent | MapTouchEvent) => void;
-  #onMoveStart: (event: MapMouseEvent | MapTouchEvent) => void;
+  #onMove: (event: MapMouseEvent | MapTouchEvent) => void;
   #onZoomEnd: (event: MapMouseEvent | MapTouchEvent) => void;
 }
 
