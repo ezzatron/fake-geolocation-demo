@@ -28,6 +28,6 @@
   transform: scale(1.1);
 }
 .altimeter [data-icon] {
-  width: var(--size-6);
-  height: var(--size-6);
+  width: var(--size-7);
+  height: var(--size-7);
 }
