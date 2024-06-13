@@ -1,25 +1,8 @@
-import type {
-  EaseToOptions,
-  FitBoundsOptions,
-  IControl,
-  Map,
-  MapMouseEvent,
-  MapTouchEvent,
-} from "mapbox-gl";
-import throttle from "throttleit";
+import type { IControl, Map, MapMouseEvent, MapTouchEvent } from "mapbox-gl";
 import styles from "./compass.module.css";
 
 export class Compass implements IControl {
-  constructor(
-    bounds: [number, number, number, number],
-    fitBoundsOptions: FitBoundsOptions,
-  ) {
-    this.#camera = this.#readCamera();
-    this.#followZoom = this.#readFollowZoom();
-    this.#bounds = bounds;
-    this.#fitBoundsOptions = fitBoundsOptions;
-    this.#isInteracting = false;
-
+  constructor(toggleCamera: () => void) {
     this.#container = document.createElement("div");
     this.#container.className = styles.compass;
     this.#container.title = "Change camera";
@@ -28,71 +11,23 @@ export class Compass implements IControl {
     this.#container.appendChild(this.#createPart("pointer"));
 
     this.#container.addEventListener("click", () => {
-      this.#toggleCamera();
+      toggleCamera();
     });
 
-    this.#onInteractStart = () => {
-      this.#isInteracting = true;
-    };
-
-    this.#onInteractEnd = () => {
-      this.#isInteracting = false;
-    };
-
-    this.#onMove = ({ originalEvent }) => {
+    this.#onMove = () => {
       this.#updateBearings();
-
-      if (this.#isInteracting && originalEvent && this.#camera === "follow") {
-        this.#camera = "free";
-      }
     };
-
-    this.#onZoomEnd = ({ originalEvent }) => {
-      if (!originalEvent || !this.#map || this.#camera !== "follow") return;
-
-      this.#followZoom = this.#map.getZoom();
-      window.localStorage.setItem("follow-zoom", String(this.#followZoom));
-    };
-
-    this.#updateFollowCamera = throttle(() => {
-      if (!this.#map || !this.#position) {
-        return;
-      }
-
-      const target: EaseToOptions = {
-        center: [
-          this.#position.coords.longitude,
-          this.#position.coords.latitude,
-        ],
-        bearing: this.#position.coords.heading ?? 0,
-        pitch: 60,
-      };
-      if (this.#map.getZoom() !== this.#followZoom) {
-        target.zoom = this.#followZoom;
-      }
-      this.#map.easeTo(target);
-    }, 100);
   }
 
   onAdd(map: Map): HTMLElement {
     this.#map = map;
-    map.on("mousedown", this.#onInteractStart);
-    map.on("mouseup", this.#onInteractEnd);
-    map.on("touchstart", this.#onInteractStart);
-    map.on("touchend", this.#onInteractEnd);
     map.on("move", this.#onMove);
-    map.on("zoomend", this.#onZoomEnd);
 
     return this.#container;
   }
 
   onRemove(map: Map): void {
-    map.off("mousedown", this.#onInteractStart);
-    map.off("mouseup", this.#onInteractEnd);
-    map.off("touchstart", this.#onInteractStart);
-    map.off("touchend", this.#onInteractEnd);
     map.off("move", this.#onMove);
-    map.off("zoomend", this.#onZoomEnd);
     this.#container.parentElement?.removeChild(this.#container);
   }
 
@@ -113,10 +48,6 @@ export class Compass implements IControl {
     }
 
     this.#updateBearings();
-
-    if (!this.#isInteracting && this.#camera === "follow") {
-      this.#updateFollowCamera();
-    }
   }
 
   #updateBearings(): void {
@@ -146,30 +77,6 @@ export class Compass implements IControl {
     return "N";
   }
 
-  #toggleCamera(): void {
-    if (this.#camera === "follow") {
-      this.#camera = "bounds";
-      this.#map?.fitBounds(this.#bounds, this.#fitBoundsOptions);
-    } else {
-      this.#camera = "follow";
-    }
-
-    this.#update();
-    window.localStorage.setItem("camera", this.#camera);
-  }
-
-  #readCamera(): Camera {
-    const camera = window.localStorage.getItem("camera");
-
-    return isValidCamera(camera) ? camera : "follow";
-  }
-
-  #readFollowZoom(): number {
-    const followZoom = window.localStorage.getItem("follow-zoom");
-
-    return followZoom ? Number(followZoom) : 16;
-  }
-
   #createPart(part: string): SVGSVGElement {
     const viewBox = document
       .getElementById(`compass-${part}`)
@@ -193,20 +100,5 @@ export class Compass implements IControl {
   #container: HTMLDivElement;
   #map: Map | undefined;
   #position: GeolocationPosition | undefined;
-  #camera: Camera;
-  #bounds: [number, number, number, number];
-  #fitBoundsOptions: FitBoundsOptions;
-  #followZoom: number;
-  #isInteracting: boolean;
-  #onInteractStart: (event: MapMouseEvent | MapTouchEvent) => void;
-  #onInteractEnd: (event: MapMouseEvent | MapTouchEvent) => void;
   #onMove: (event: MapMouseEvent | MapTouchEvent) => void;
-  #onZoomEnd: (event: MapMouseEvent | MapTouchEvent) => void;
-  #updateFollowCamera: () => void;
 }
-
-function isValidCamera(camera: unknown): camera is Camera {
-  return camera === "bounds" || camera === "follow" || camera === "free";
-}
-
-type Camera = "bounds" | "follow" | "free";

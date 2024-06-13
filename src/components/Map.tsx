@@ -9,6 +9,7 @@ import type {
 } from "geojson";
 import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
+import throttle from "throttleit";
 import styles from "./Map.module.css";
 import { Altimeter } from "./map-controls/altimeter";
 import { Compass } from "./map-controls/compass";
@@ -26,14 +27,32 @@ type Props = {
   route: Feature<LineString> | undefined;
 };
 
+const fitBoundsOptions = { padding: 64 };
+
 export default class Map extends Component<Props> {
   constructor(props: Props) {
     super(props);
 
+    this.#camera = "follow";
+
+    this.#updateFollowCamera = throttle(() => {
+      if (!this.#map || !this.props.position || this.#camera !== "follow") {
+        return;
+      }
+
+      this.#map.easeTo({
+        center: [
+          this.props.position.coords.longitude,
+          this.props.position.coords.latitude,
+        ],
+        bearing: this.props.position.coords.heading ?? 0,
+        pitch: 60,
+        zoom: 17,
+      });
+    }, 100);
+
     this.#setRef = (container) => {
       if (!container) return;
-
-      const fitBoundsOptions = { padding: 64 };
 
       const map = new MapboxMap({
         accessToken: this.props.mapboxToken,
@@ -44,10 +63,17 @@ export default class Map extends Component<Props> {
         center: this.#lngLat,
       });
       this.#map = map;
+      this.#container = container;
+
+      this.#camera = this.#readCamera();
+      this.#setInteractivity();
 
       this.#speedometer = new Speedometer();
       this.#altimeter = new Altimeter();
-      this.#compass = new Compass(this.props.bounds, fitBoundsOptions);
+      this.#compass = new Compass(() => {
+        this.#toggleCamera();
+        this.#updateFollowCamera();
+      });
 
       map.addControl(this.#speedometer, "top-right");
       map.addControl(this.#altimeter, "top-right");
@@ -122,6 +148,13 @@ export default class Map extends Component<Props> {
           this.#positionSource = source;
         }
       });
+
+      map.on("movestart", ({ originalEvent }) => {
+        if (originalEvent) {
+          this.#camera = "free";
+          this.#setInteractivity();
+        }
+      });
     };
   }
 
@@ -138,6 +171,8 @@ export default class Map extends Component<Props> {
         this.props.position?.coords.altitude ?? null,
       );
       this.#compass?.setPosition(this.props.position);
+
+      this.#updateFollowCamera();
     }
     if (this.props.route !== route) {
       const routeSource = this.#map?.getSource("route");
@@ -175,11 +210,60 @@ export default class Map extends Component<Props> {
     };
   }
 
+  #toggleCamera(): void {
+    if (this.#camera === "bounds") {
+      this.#camera = "follow";
+    } else {
+      this.#camera = "bounds";
+      this.#map?.fitBounds(this.props.bounds, fitBoundsOptions);
+    }
+
+    this.#setInteractivity();
+
+    window.localStorage.setItem("camera", this.#camera);
+  }
+
+  #readCamera(): Camera {
+    const camera = window.localStorage.getItem("camera");
+
+    return isValidCamera(camera) ? camera : "follow";
+  }
+
+  #setInteractivity() {
+    if (!this.#map || !this.#container) return;
+
+    const enableDisable = this.#camera === "follow" ? "disable" : "enable";
+
+    this.#map.scrollZoom[enableDisable]();
+    this.#map.boxZoom[enableDisable]();
+    this.#map.dragRotate[enableDisable]();
+    this.#map.dragPan[enableDisable]();
+    this.#map.keyboard[enableDisable]();
+    this.#map.doubleClickZoom[enableDisable]();
+    this.#map.touchZoomRotate[enableDisable]();
+    this.#map.touchPitch[enableDisable]();
+
+    const addRemove = this.#camera === "follow" ? "remove" : "add";
+
+    this.#container
+      .querySelector(".mapboxgl-canvas-container")
+      ?.classList[addRemove]("mapboxgl-interactive");
+  }
+
   readonly #setRef: (container: HTMLDivElement) => void;
   #map: MapboxMap | undefined;
+  #container: HTMLDivElement | undefined;
   #accuracySource: GeoJSONSource | undefined;
   #positionSource: GeoJSONSource | undefined;
   #speedometer: Speedometer | undefined;
   #altimeter: Altimeter | undefined;
   #compass: Compass | undefined;
+  #camera: Camera;
+  #updateFollowCamera: () => void;
 }
+
+function isValidCamera(camera: unknown): camera is Camera {
+  return camera === "bounds" || camera === "follow" || camera === "free";
+}
+
+type Camera = "bounds" | "follow" | "free";
