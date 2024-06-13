@@ -7,7 +7,7 @@ import type {
   Point,
   Polygon,
 } from "geojson";
-import { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
+import { AttributionControl, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { Component } from "react";
 import throttle from "throttleit";
 import styles from "./Map.module.css";
@@ -61,6 +61,8 @@ export default class Map extends Component<Props> {
         bounds: this.props.bounds,
         fitBoundsOptions,
         center: this.#lngLat,
+        logoPosition: "top-left",
+        attributionControl: false,
       });
       this.#map = map;
       this.#container = container;
@@ -77,7 +79,8 @@ export default class Map extends Component<Props> {
 
       map.addControl(this.#speedometer, "top-right");
       map.addControl(this.#altimeter, "top-right");
-      map.addControl(this.#compass, "top-left");
+      map.addControl(this.#compass, "bottom-right");
+      map.addControl(new AttributionControl(), "bottom-left");
 
       map.on("load", () => {
         map.addSource("accuracy", {
