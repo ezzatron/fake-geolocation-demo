@@ -18,6 +18,7 @@ import {
 //       speed/altitude/heading, etc.
 // TODO: Altimeter and compass
 // TODO: Dynamic journey via geocoding inputs
+// TODO: Fake accuracy from API journeys
 
 export type AtLeastTwoPositions = [
   GeolocationPosition,
@@ -180,7 +181,7 @@ export function findFastestSegment(
   let fastest: JourneySegment = segments[0];
 
   for (const seg of segments) {
-    const spd = speed(...seg);
+    const spd = coordinateSpeed(...seg);
 
     if (spd > maxSpd) {
       maxSpd = spd;
@@ -191,7 +192,7 @@ export function findFastestSegment(
   return fastest;
 }
 
-export function distance(
+export function coordinateDistance(
   a: GeolocationCoordinates,
   b: GeolocationCoordinates,
 ): number {
@@ -205,8 +206,28 @@ export function distance(
   );
 }
 
-export function speed(a: GeolocationPosition, b: GeolocationPosition): number {
-  return distance(a.coords, b.coords) / ((b.timestamp - a.timestamp) / 1000);
+export function geoJSONPositionDistance(
+  [aLon, aLat, aAlt = 0]: Position,
+  [bLon, bLat, bAlt = 0]: Position,
+): number {
+  return norm(
+    delta(
+      fromGeodeticCoordinates(radians(aLon), radians(aLat)),
+      fromGeodeticCoordinates(radians(bLon), radians(bLat)),
+      -(aAlt || -0),
+      -(bAlt || -0),
+    ),
+  );
+}
+
+export function coordinateSpeed(
+  a: GeolocationPosition,
+  b: GeolocationPosition,
+): number {
+  return (
+    coordinateDistance(a.coords, b.coords) /
+    ((b.timestamp - a.timestamp) / 1000)
+  );
 }
 
 export function lerpPosition(
@@ -289,18 +310,8 @@ export function createJourneyFromGeoJSON({
     // Skip positions without a time
     if (time == null) continue;
 
-    const [longitude, latitude, altitude = null] = coordinates[i];
-
     positions.push({
-      coords: {
-        longitude,
-        latitude,
-        altitude,
-        accuracy: 0,
-        altitudeAccuracy: null,
-        heading: null,
-        speed: null,
-      },
+      coords: coordinatesFromGeoJSONPosition(coordinates[i]),
       timestamp: new Date(time).getTime(),
     });
   }
@@ -308,7 +319,7 @@ export function createJourneyFromGeoJSON({
   const a = positions.shift();
   const b = positions.shift();
 
-  if (!a || !b) throw new Error("Insufficient positions for a journey");
+  if (!a || !b) throw new Error("Not enough positions");
 
   return createJourney(a, b, ...positions);
 }
@@ -339,19 +350,17 @@ export function geoJSONFromPositions(
   };
 }
 
-export type MapboxRouteWithDurations = {
+export type MapboxRoute = {
   geometry: LineString;
-  legs: MapboxLegWithDurations[];
-};
-
-export type MapboxLegWithDurations = {
-  annotation: {
-    duration: number[];
-  };
+  legs: {
+    annotation: {
+      duration: number[];
+    };
+  }[];
 };
 
 export function createJourneyFromMapboxRoute(
-  { geometry: { coordinates }, legs }: MapboxRouteWithDurations,
+  { geometry: { coordinates }, legs }: MapboxRoute,
   startTime: number = 0,
 ): Journey {
   const durations = legs.flatMap(({ annotation: { duration } }) => duration);
@@ -359,18 +368,8 @@ export function createJourneyFromMapboxRoute(
   let time = startTime;
 
   for (let i = 0; i < coordinates.length; ++i) {
-    const [longitude, latitude] = coordinates[i];
-
     positions.push({
-      coords: {
-        longitude,
-        latitude,
-        altitude: null,
-        accuracy: 0,
-        altitudeAccuracy: null,
-        heading: null,
-        speed: null,
-      },
+      coords: coordinatesFromGeoJSONPosition(coordinates[i]),
       timestamp: time,
     });
 
@@ -380,7 +379,131 @@ export function createJourneyFromMapboxRoute(
   const a = positions.shift();
   const b = positions.shift();
 
-  if (!a || !b) throw new Error("Insufficient positions for a journey");
+  if (!a || !b) throw new Error("Not enough positions");
 
   return createJourney(a, b, ...positions);
+}
+
+export type GoogleRoute = {
+  legs: {
+    steps: {
+      staticDuration: string;
+      polyline: {
+        geoJsonLinestring: LineString;
+      };
+    }[];
+  }[];
+};
+
+export function createJourneyFromGoogleRoute(
+  { legs }: GoogleRoute,
+  startTime: number = 0,
+): Journey {
+  const positions: GeolocationPosition[] = [];
+  let time = startTime;
+  let final: Position | undefined;
+
+  for (let legNum = 0; legNum < legs.length; ++legNum) {
+    const { steps } = legs[legNum];
+
+    for (let stepNum = 0; stepNum < steps.length; ++stepNum) {
+      const {
+        staticDuration,
+        polyline: {
+          geoJsonLinestring: { coordinates },
+        },
+      } = steps[stepNum];
+
+      // Never seen, but just in case
+      if (coordinates.length < 1) continue;
+
+      const duration = parseFloat(staticDuration) * 1000;
+
+      // Deal with single-position steps, which can actually happen.
+      // I've only seen them be 0 duration so far.
+      if (coordinates.length < 2) {
+        if (duration === 0) continue;
+
+        throw new Error(
+          `Single-position step with duration in leg ${legNum}, step ${stepNum}`,
+        );
+      }
+
+      const distances: number[] = [];
+      let distance = 0;
+
+      for (let i = 1; i < coordinates.length; ++i) {
+        const a = coordinates[i - 1];
+        const b = coordinates[i];
+
+        const dist = geoJSONPositionDistance(a, b);
+        distances.push(dist);
+        distance += dist;
+
+        final = b;
+      }
+
+      if (distance === 0) {
+        positions.push({
+          coords: coordinatesFromGeoJSONPosition(coordinates[0]),
+          timestamp: time,
+        });
+
+        time += duration;
+
+        continue;
+      }
+
+      for (let i = 0; i < coordinates.length - 1; ++i) {
+        const dur = (distances[i] / distance) * duration;
+
+        positions.push({
+          coords: coordinatesFromGeoJSONPosition(coordinates[i]),
+          timestamp: time,
+        });
+
+        time += dur;
+      }
+    }
+  }
+
+  if (final) {
+    positions.push({
+      coords: coordinatesFromGeoJSONPosition(final),
+      timestamp: time,
+    });
+  }
+
+  const a = positions.shift();
+  const b = positions.shift();
+
+  if (!a || !b) throw new Error("Not enough positions");
+
+  return createJourney(a, b, ...positions);
+}
+
+export function coordinatesFromGeoJSONPosition([
+  longitude,
+  latitude,
+  altitude,
+]: Position): GeolocationCoordinates {
+  return {
+    longitude,
+    latitude,
+    altitude: altitude ?? null,
+    accuracy: 0,
+    altitudeAccuracy: altitude == null ? null : 0,
+    heading: null,
+    speed: null,
+  };
+}
+
+export function geoJSONPositionFromCoordinates({
+  longitude,
+  latitude,
+  altitude,
+}: GeolocationCoordinates): Position {
+  return altitude == null
+    ? [longitude, latitude]
+    : [longitude, latitude, altitude];
 }

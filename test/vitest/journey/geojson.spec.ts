@@ -56,7 +56,7 @@ it("creates a journey from GeoJSON", () => {
   ]);
 });
 
-it("throws when there are insufficient positions", () => {
+it("throws when there are not enough positions", () => {
   const geoJSON: GeoJSONJourney = {
     type: "Feature",
     properties: {
@@ -75,7 +75,7 @@ it("throws when there are insufficient positions", () => {
   };
 
   expect(() => createJourneyFromGeoJSON(geoJSON)).toThrowError(
-    "Insufficient positions for a journey",
+    "Not enough positions",
   );
 });
 

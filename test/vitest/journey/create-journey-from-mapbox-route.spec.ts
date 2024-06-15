@@ -1,10 +1,10 @@
 import { expect, it } from "vitest";
 import {
   createJourneyFromMapboxRoute,
-  type MapboxRouteWithDurations,
+  type MapboxRoute,
 } from "../../../src/journey";
 
-const route: MapboxRouteWithDurations = {
+const route: MapboxRoute = {
   legs: [
     {
       annotation: {
@@ -58,8 +58,8 @@ it("creates a journey from a Mapbox route", () => {
   ]);
 });
 
-it("throws when there are insufficient positions", () => {
-  const route: MapboxRouteWithDurations = {
+it("throws when there are not enough positions", () => {
+  const route: MapboxRoute = {
     legs: [
       {
         annotation: {
@@ -74,6 +74,6 @@ it("throws when there are insufficient positions", () => {
   };
 
   expect(() => createJourneyFromMapboxRoute(route)).toThrow(
-    "Insufficient positions for a journey",
+    "Not enough positions",
   );
 });
