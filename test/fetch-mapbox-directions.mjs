@@ -5,13 +5,15 @@ if (!token) {
 
 const baseURL = new URL("https://api.mapbox.com/");
 
+const profile = "driving";
 const steps = [
-  await geocode("White Castle, Bronx, NY"),
-  await geocode("Five Guys, Jersey City, NJ"),
-  await geocode("Shake Shack, New York, NY"),
+  await geocode("White Castle, Webster Avenue, The Bronx, NY"),
+  await geocode("Five Guys, Hudson Street, Jersey City, NJ"),
+  await geocode("11 Madison Ave, New York, NY 10010, United States"),
 ];
+const departAt = new Date();
 
-const result = await directions("driving", steps, new Date());
+const result = await directions(profile, steps, departAt);
 
 console.log(JSON.stringify(result));
 

@@ -5,25 +5,19 @@ if (!token) {
 
 const baseURL = new URL("https://routes.googleapis.com/");
 
+const travelMode = "TRANSIT";
 const steps = [
-  "White Castle, Bronx, NY",
-  "Five Guys, Jersey City, NJ",
-  // "Shake Shack, New York, NY",
+  "White Castle, Webster Avenue, The Bronx, NY",
+  "Five Guys, Hudson Street, Jersey City, NJ",
+  // "11 Madison Ave, New York, NY 10010, United States", // transit only allows 2 stops
 ];
+const departureTime = new Date();
 
-const result = await directions("TRANSIT", steps, new Date());
+const result = await directions(travelMode, steps, departureTime);
 
 console.log(JSON.stringify(result));
 
-// console.error("Legs:", result.routes[0].legs.length);
-// console.error("Coordinates:", result.routes[0].geometry.coordinates.length);
-// console.error(
-//   "Durations:",
-//   result.routes[0].legs.reduce(
-//     (acc, leg) => acc + leg.annotation.duration.length,
-//     0,
-//   ),
-// );
+console.error("Legs:", result.routes?.[0].legs.length);
 
 async function directions(travelMode, stops, departureTime) {
   const origin = stops.shift();
@@ -35,7 +29,8 @@ async function directions(travelMode, stops, departureTime) {
       method: "POST",
       headers: {
         "X-Goog-Api-Key": token,
-        "X-Goog-FieldMask": "routes",
+        "X-Goog-FieldMask":
+          "routes.legs.steps.staticDuration,routes.legs.steps.polyline",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
