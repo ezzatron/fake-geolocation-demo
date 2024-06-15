@@ -11,9 +11,6 @@ const steps = [
   await geocode("Shake Shack, New York, NY"),
 ];
 
-// console.log(new Date().toISOString().replace(/\.\d+Z$/, "Z"));
-// process.exit(1);
-
 const result = await directions("driving", steps, new Date());
 
 console.log(JSON.stringify(result));
@@ -30,7 +27,6 @@ console.error(
 );
 
 async function geocode(query) {
-  // https://api.mapbox.com/search/geocode/v6/forward?q={search_text}
   const url = new URL(
     ["search", "geocode", "v6", "forward"].join("/"),
     baseURL,
@@ -66,6 +62,13 @@ async function directions(profile, stops, departAt) {
   );
 
   const res = await fetch(url);
+  const body = await res.json();
 
-  return res.json();
+  if (!res.ok) {
+    throw new Error(
+      `Unexpected response code: ${res.status} ${res.statusText} ${JSON.stringify(body, null, 2)}`,
+    );
+  }
+
+  return body;
 }
