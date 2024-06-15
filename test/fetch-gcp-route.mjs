@@ -11,7 +11,7 @@ const steps = [
   "Five Guys, Hudson Street, Jersey City, NJ",
   // "11 Madison Ave, New York, NY 10010, United States", // transit only allows 2 stops
 ];
-const departureTime = new Date();
+const departureTime = new Date(Date.now() + 60 * 1000);
 
 const result = await directions(travelMode, steps, departureTime);
 
@@ -35,6 +35,8 @@ async function directions(travelMode, stops, departureTime) {
       },
       body: JSON.stringify({
         travelMode,
+        routingPreference:
+          travelMode === "TRANSIT" ? undefined : "TRAFFIC_AWARE",
         origin: { address: origin },
         destination: { address: destination },
         intermediates: stops.map((address) => ({ address })),

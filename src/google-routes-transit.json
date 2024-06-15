@@ -27,7 +27,6 @@
               "staticDuration": "152s",
               "polyline": {
                 "geoJsonLinestring": {
-                  "type": "LineString",
                   "coordinates": [
                     [-73.9023804, 40.846384199999996],
                     [-73.9022409, 40.846635],
@@ -40,7 +39,8 @@
                     [-73.9018567, 40.8475872],
                     [-73.9018052, 40.847674399999995],
                     [-73.9017825, 40.8477156]
-                  ]
+                  ],
+                  "type": "LineString"
                 }
               }
             },
@@ -104,6 +104,7 @@
               "staticDuration": "109s",
               "polyline": {
                 "geoJsonLinestring": {
+                  "type": "LineString",
                   "coordinates": [
                     [-73.90590999999999, 40.8491151],
                     [-73.905863, 40.8491917],
@@ -120,8 +121,7 @@
                     [-73.9053792, 40.8498308],
                     [-73.9053173, 40.849911899999995],
                     [-73.9052264, 40.8500234]
-                  ],
-                  "type": "LineString"
+                  ]
                 }
               }
             },
@@ -141,6 +141,7 @@
               "staticDuration": "1380s",
               "polyline": {
                 "geoJsonLinestring": {
+                  "type": "LineString",
                   "coordinates": [
                     [-73.905228, 40.85041],
                     [-73.9052277, 40.850410499999995],
@@ -428,8 +429,7 @@
                     [-73.9764099, 40.7755928],
                     [-73.9817352, 40.7682954],
                     [-73.981735, 40.768294999999995]
-                  ],
-                  "type": "LineString"
+                  ]
                 }
               }
             },
@@ -437,8 +437,8 @@
               "staticDuration": "0s",
               "polyline": {
                 "geoJsonLinestring": {
-                  "type": "LineString",
-                  "coordinates": [[-73.981735, 40.768294999999995]]
+                  "coordinates": [[-73.981735, 40.768294999999995]],
+                  "type": "LineString"
                 }
               }
             },
@@ -571,11 +571,11 @@
               "staticDuration": "56s",
               "polyline": {
                 "geoJsonLinestring": {
-                  "type": "LineString",
                   "coordinates": [
                     [-74.008583, 40.714110999999995],
                     [-74.0090441, 40.7137446]
-                  ]
+                  ],
+                  "type": "LineString"
                 }
               }
             },
@@ -583,7 +583,6 @@
               "staticDuration": "172s",
               "polyline": {
                 "geoJsonLinestring": {
-                  "type": "LineString",
                   "coordinates": [
                     [-74.0090464, 40.713745599999996],
                     [-74.00933429999999, 40.713372],
@@ -604,7 +603,8 @@
                     [-74.0100085, 40.7123919],
                     [-74.0101818, 40.7121466],
                     [-74.0102019, 40.7121182]
-                  ]
+                  ],
+                  "type": "LineString"
                 }
               }
             },
@@ -612,7 +612,6 @@
               "staticDuration": "47s",
               "polyline": {
                 "geoJsonLinestring": {
-                  "type": "LineString",
                   "coordinates": [
                     [-74.0102019, 40.7121182],
                     [-74.0102418, 40.71213180000001],
@@ -623,7 +622,8 @@
                     [-74.0105423, 40.7123091],
                     [-74.010716, 40.7124008],
                     [-74.01075, 40.712416]
-                  ]
+                  ],
+                  "type": "LineString"
                 }
               }
             },
@@ -643,6 +643,7 @@
               "staticDuration": "240s",
               "polyline": {
                 "geoJsonLinestring": {
+                  "type": "LineString",
                   "coordinates": [
                     [-74.01193, 40.71271],
                     [-74.0120682, 40.71267230000001],
@@ -656,8 +657,7 @@
                     [-74.0322535, 40.7168804],
                     [-74.0323506, 40.7168928],
                     [-74.03238, 40.71676]
-                  ],
-                  "type": "LineString"
+                  ]
                 }
               }
             },
@@ -665,11 +665,11 @@
               "staticDuration": "73s",
               "polyline": {
                 "geoJsonLinestring": {
-                  "type": "LineString",
                   "coordinates": [
                     [-74.03238, 40.71676],
                     [-74.0331799, 40.716518099999995]
-                  ]
+                  ],
+                  "type": "LineString"
                 }
               }
             },
@@ -697,11 +697,11 @@
               "staticDuration": "54s",
               "polyline": {
                 "geoJsonLinestring": {
+                  "type": "LineString",
                   "coordinates": [
                     [-74.0341895, 40.7163549],
                     [-74.0343152, 40.715829899999996]
-                  ],
-                  "type": "LineString"
+                  ]
                 }
               }
             }

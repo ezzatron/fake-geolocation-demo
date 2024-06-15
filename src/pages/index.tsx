@@ -5,11 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import Map from "../components/Map";
 import {
   boundingBox,
-  createJourneyFromMapboxRoute,
+  createJourneyFromGoogleRoute,
   findFastestSegment,
   geoJSONFromPositions,
   lerpPosition,
-  type MapboxRouteWithDurations,
+  type GoogleRoute,
 } from "../journey";
 import styles from "./index.module.css";
 
@@ -25,12 +25,20 @@ import {
 } from "lucide-react";
 import CompassPointer from "../components/CompassPointer";
 import CompassRing from "../components/CompassRing";
-import directionsJSON from "../mapbox-directions.json";
+import googleRoutesDrivingJSON from "../google-routes-driving.json";
+// import googleRoutesTransitJSON from "../google-routes-transit.json";
 // import geoJSON from "../journey.json";
+// import mapboxDirectionsJSON from "../mapbox-directions.json";
 
-const journey = createJourneyFromMapboxRoute(
-  directionsJSON.routes[0] as MapboxRouteWithDurations,
+const journey = createJourneyFromGoogleRoute(
+  googleRoutesDrivingJSON.routes[0] as GoogleRoute,
 );
+// const journey = createJourneyFromGoogleRoute(
+//   googleRoutesTransitJSON.routes[0] as GoogleRoute,
+// );
+// const journey = createJourneyFromMapboxRoute(
+//   mapboxDirectionsJSON.routes[0] as MapboxRoute,
+// );
 // const journey = createJourneyFromGeoJSON(geoJSON as GeoJSONJourney);
 // const startTime = 0;
 const fastestSegment = findFastestSegment(...journey.segments);
