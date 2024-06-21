@@ -509,12 +509,21 @@ export function geoJSONPositionFromCoordinates({
 export type JourneyPlayer = {
   play: () => void;
   pause: () => void;
+  seek: (toOffsetTime: number) => void;
+
   subscribe: (subscriber: JourneyPlayerSubscriber) => Unsubscribe;
 };
 
 export type JourneyPlayerSubscriber = (event: JourneyPlayerEvent) => void;
-export type JourneyPlayerEvent = object;
+export type JourneyPlayerEvent = JourneyPlayerPositionEvent;
 export type Unsubscribe = () => void;
+
+export type JourneyPlayerPositionEvent = {
+  type: "POSITION";
+  details: {
+    position: GeolocationPosition;
+  };
+};
 
 export function createLerpPlayer(journey: Journey): JourneyPlayer {
   const subscribers = new Set<JourneyPlayerSubscriber>();
@@ -531,23 +540,9 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
   let offsetTime = 0;
 
   return {
-    play() {
-      // If already playing, do nothing
-      if (!tickTimeout) scheduleTick();
-    },
-
-    pause() {
-      // If already paused, do nothing
-      if (!tickTimeout) return;
-
-      const elapsed = Date.now() - tickTime;
-      offsetTime += elapsed;
-      tickDelay -= elapsed;
-
-      // Pause the player by clearing the tick timeout
-      clearTimeout(tickTimeout);
-      tickTimeout = undefined;
-    },
+    play,
+    pause,
+    seek,
 
     subscribe(subscriber) {
       subscribers.add(subscriber);
@@ -557,6 +552,38 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
       };
     },
   };
+
+  function play() {
+    tickTime = Date.now();
+
+    // If already playing, do nothing
+    if (!tickTimeout) scheduleTick();
+  }
+
+  function pause() {
+    // If already paused, do nothing
+    if (!tickTimeout) return;
+
+    const elapsed = Date.now() - tickTime;
+    offsetTime += elapsed;
+    tickDelay -= elapsed;
+
+    // Pause the player by clearing the tick timeout
+    clearTimeout(tickTimeout);
+    tickTimeout = undefined;
+  }
+
+  function seek(toOffsetTime: number) {
+    const wasPlaying = Boolean(tickTimeout);
+
+    clearTimeout(tickTimeout);
+    tickTimeout = undefined;
+
+    tickTime = Date.now();
+    tickDelay = 0;
+    offsetTime = toOffsetTime;
+    if (wasPlaying) scheduleTick();
+  }
 
   function scheduleTick() {
     tickTimeout = setTimeout(() => {

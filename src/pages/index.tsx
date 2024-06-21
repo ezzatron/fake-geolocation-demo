@@ -1,15 +1,15 @@
 import { createWrappedAPIs } from "fake-geolocation";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Map from "../components/Map";
 import {
   boundingBox,
-  createJourneyFromGoogleRoute,
+  createJourneyFromMapboxRoute,
+  createLerpPlayer,
   findFastestSegment,
   geoJSONFromPositions,
-  lerpPosition,
-  type GoogleRoute,
+  type MapboxRoute,
 } from "../journey";
 import styles from "./index.module.css";
 
@@ -25,20 +25,20 @@ import {
 } from "lucide-react";
 import CompassPointer from "../components/CompassPointer";
 import CompassRing from "../components/CompassRing";
-import googleRoutesDrivingJSON from "../google-routes-driving.json";
+// import googleRoutesDrivingJSON from "../google-routes-driving.json";
 // import googleRoutesTransitJSON from "../google-routes-transit.json";
 // import geoJSON from "../journey.json";
-// import mapboxDirectionsJSON from "../mapbox-directions.json";
+import mapboxDirectionsJSON from "../mapbox-directions.json";
 
-const journey = createJourneyFromGoogleRoute(
-  googleRoutesDrivingJSON.routes[0] as GoogleRoute,
-);
+// const journey = createJourneyFromGoogleRoute(
+//   googleRoutesDrivingJSON.routes[0] as GoogleRoute,
+// );
 // const journey = createJourneyFromGoogleRoute(
 //   googleRoutesTransitJSON.routes[0] as GoogleRoute,
 // );
-// const journey = createJourneyFromMapboxRoute(
-//   mapboxDirectionsJSON.routes[0] as MapboxRoute,
-// );
+const journey = createJourneyFromMapboxRoute(
+  mapboxDirectionsJSON.routes[0] as MapboxRoute,
+);
 // const journey = createJourneyFromGeoJSON(geoJSON as GeoJSONJourney);
 // const startTime = 0;
 const fastestSegment = findFastestSegment(...journey.segments);
@@ -69,7 +69,6 @@ export default function Demo({ mapboxToken }: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
-  const journeyTime = useRef(startTime);
 
   useEffect(() => {
     const { geolocation, permissions, user } = createWrappedAPIs({
@@ -78,25 +77,26 @@ export default function Demo({ mapboxToken }: Props) {
       handlePermissionRequest: () => "granted",
     });
 
-    user.jumpToCoordinates(journey.startPosition.coords);
-
     setGeolocation(geolocation);
     setPermissions(permissions);
 
-    const coordsIntervalId = setInterval(() => {
-      const [a, b, t] = journey.segmentAtOffsetTime(
-        (journeyTime.current += 100),
-      );
-      const coords = lerpPosition(a, b, t);
-      user.jumpToCoordinates(coords);
-    }, 100);
+    const player = createLerpPlayer(journey);
+    const unsubscribe = player.subscribe((event) => {
+      if (event.type === "POSITION") {
+        user.jumpToCoordinates(event.details.position.coords);
+      }
+    });
+
+    player.seek(startTime);
+    player.play();
 
     // const switchAPIsIntervalId = setInterval(() => {
     //   selectAPIs(!isUsingSuppliedAPIs());
     // }, 15000);
 
     return () => {
-      clearInterval(coordsIntervalId);
+      unsubscribe();
+      player.pause();
       // clearInterval(switchAPIsIntervalId);
     };
   }, []);
