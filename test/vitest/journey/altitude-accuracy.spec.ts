@@ -1,6 +1,6 @@
+import { createCoordinates } from "fake-geolocation";
 import { describe, expect, it } from "vitest";
 import { createJourney, lerpPosition } from "../../../src/journey";
-import { createCoordinates } from "./util";
 
 describe("when altitude accuracy data is present", () => {
   const journey = createJourney(

@@ -1,6 +1,6 @@
+import { createCoordinates } from "fake-geolocation";
 import { describe, expect, it } from "vitest";
 import { boundingBox, createJourney } from "../../../src/journey";
-import { createCoordinates } from "./util";
 
 describe("when the journey does not span the dateline", () => {
   const journey = createJourney(
