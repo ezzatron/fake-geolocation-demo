@@ -1,18 +1,4 @@
 import { createWrappedAPIs } from "fake-geolocation";
-import { GetServerSideProps } from "next";
-import Head from "next/head";
-import { useEffect, useState } from "react";
-import Map from "../components/Map";
-import {
-  boundingBox,
-  createJourneyFromMapboxRoute,
-  createLerpPlayer,
-  findFastestSegment,
-  geoJSONFromPositions,
-  type MapboxRoute,
-} from "../journey";
-import styles from "./index.module.css";
-
 import {
   BikeIcon,
   CarIcon,
@@ -23,49 +9,90 @@ import {
   PlaneIcon,
   RocketIcon,
 } from "lucide-react";
+import { GetServerSideProps } from "next";
+import Head from "next/head";
+import { useEffect, useState } from "react";
 import CompassPointer from "../components/CompassPointer";
 import CompassRing from "../components/CompassRing";
-// import googleRoutesDrivingJSON from "../google-routes-driving.json";
-// import googleRoutesTransitJSON from "../google-routes-transit.json";
-// import geoJSON from "../journey.json";
+import Map from "../components/Map";
+import googleRoutesDrivingJSON from "../google-routes-driving.json";
+import googleRoutesTransitJSON from "../google-routes-transit.json";
+import {
+  boundingBox,
+  createJourneyFromGeoJSON,
+  createJourneyFromGoogleRoute,
+  createJourneyFromMapboxRoute,
+  createLerpPlayer,
+  findFastestSegment,
+  geoJSONFromPositions,
+  type GeoJSONJourney,
+  type GoogleRoute,
+  type Journey,
+  type MapboxRoute,
+} from "../journey";
+import geoJSON from "../journey.json";
 import mapboxDirectionsJSON from "../mapbox-directions.json";
+import styles from "./index.module.css";
 
-// const journey = createJourneyFromGoogleRoute(
-//   googleRoutesDrivingJSON.routes[0] as GoogleRoute,
-// );
-// const journey = createJourneyFromGoogleRoute(
-//   googleRoutesTransitJSON.routes[0] as GoogleRoute,
-// );
-const journey = createJourneyFromMapboxRoute(
-  mapboxDirectionsJSON.routes[0] as MapboxRoute,
-);
-// const journey = createJourneyFromGeoJSON(geoJSON as GeoJSONJourney);
-// const startTime = 0;
-const fastestSegment = findFastestSegment(...journey.segments);
-const startTime = journey.timeToOffsetTime(fastestSegment[0].timestamp);
-
-const journeyBounds = boundingBox(...journey.positions);
-const route = geoJSONFromPositions(...journey.positions);
+const TIME_DESCRIPTOR_PATTERN =
+  /(?:([1-9]\d*(?:\.\d+)?)h)?(?:([1-9]\d*(?:\.\d+)?)m)?(?:([1-9]\d*(?:\.\d+)?)s)?/;
+const ONE_SECOND = 1000;
+const ONE_MINUTE = 60 * ONE_SECOND;
+const ONE_HOUR = 60 * ONE_MINUTE;
 
 type Props = {
   mapboxToken: string;
+  journeyName: string;
+  bounds: [number, number, number, number];
+  route: GeoJSONJourney;
+  startTime: number;
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context,
+) => {
   const mapboxToken = process.env.MAPBOX_TOKEN;
 
   if (typeof mapboxToken !== "string" || !mapboxToken) {
     throw new Error("MAPBOX_TOKEN is not set");
   }
 
+  let { journey: journeyName, t: timeDescriptor } = context.query;
+
+  if (typeof journeyName !== "string") journeyName = "mapbox";
+  if (typeof timeDescriptor !== "string") timeDescriptor = "fastest";
+
+  const journey = journeyByName(journeyName);
+  const bounds = boundingBox(...journey.positions);
+  const route = geoJSONFromPositions(...journey.positions);
+
+  let startTime;
+
+  if (timeDescriptor === "fastest") {
+    const fastestSegment = findFastestSegment(...journey.segments);
+    startTime = journey.timeToOffsetTime(fastestSegment[0].timestamp);
+  } else {
+    startTime = parseTimeDescriptor(timeDescriptor) ?? 0;
+  }
+
   return {
     props: {
       mapboxToken,
+      journeyName,
+      bounds,
+      route,
+      startTime,
     },
   };
 };
 
-export default function Demo({ mapboxToken }: Props) {
+export default function Demo({
+  mapboxToken,
+  journeyName,
+  bounds,
+  route,
+  startTime,
+}: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
@@ -80,6 +107,7 @@ export default function Demo({ mapboxToken }: Props) {
     setGeolocation(geolocation);
     setPermissions(permissions);
 
+    const journey = journeyByName(journeyName);
     const player = createLerpPlayer(journey);
     const unsubscribe = player.subscribe((event) => {
       if (event.type === "POSITION") {
@@ -99,7 +127,7 @@ export default function Demo({ mapboxToken }: Props) {
       player.pause();
       // clearInterval(switchAPIsIntervalId);
     };
-  }, []);
+  }, [journeyName, startTime]);
 
   useEffect(() => {
     if (!geolocation || !permissions) return;
@@ -138,12 +166,45 @@ export default function Demo({ mapboxToken }: Props) {
         <RocketIcon id="rocket-icon" />
       </div>
 
-      <Map
-        mapboxToken={mapboxToken}
-        bounds={journeyBounds}
-        position={position}
-        route={route}
-      />
+      {bounds && route && (
+        <Map
+          mapboxToken={mapboxToken}
+          bounds={bounds}
+          route={route}
+          position={position}
+        />
+      )}
     </>
   );
+}
+
+function journeyByName(name: string): Journey {
+  switch (name) {
+    case "google-driving":
+      return createJourneyFromGoogleRoute(
+        googleRoutesDrivingJSON.routes[0] as GoogleRoute,
+      );
+    case "google-transit":
+      return createJourneyFromGoogleRoute(
+        googleRoutesTransitJSON.routes[0] as GoogleRoute,
+      );
+    case "geojson":
+      return createJourneyFromGeoJSON(geoJSON as GeoJSONJourney);
+  }
+
+  return createJourneyFromMapboxRoute(
+    mapboxDirectionsJSON.routes[0] as MapboxRoute,
+  );
+}
+
+function parseTimeDescriptor(descriptor: string): number | undefined {
+  const match = TIME_DESCRIPTOR_PATTERN.exec(descriptor);
+
+  if (!match || match[0] === "") return undefined;
+
+  const hours = parseFloat(match[1] ?? "0");
+  const minutes = parseFloat(match[2] ?? "0");
+  const seconds = parseFloat(match[3] ?? "0");
+
+  return hours * ONE_HOUR + minutes * ONE_MINUTE + seconds * ONE_SECOND;
 }
