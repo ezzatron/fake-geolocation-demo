@@ -28,7 +28,11 @@ export default function CompassRing() {
 
       <circle cx="30" cy="30" r="30" fill="var(--gray-10)" />
 
-      <polygon points="30,3 33,10 27,10" fill="var(--red-6)" />
+      <polygon
+        className="north"
+        points="30,3 33,10 27,10"
+        fill="var(--red-6)"
+      />
 
       <use href="#compass-ring-line-minor" transform="rotate(22.5 30 30)" />
       <use href="#compass-ring-line-minor" transform="rotate(45 30 30)" />

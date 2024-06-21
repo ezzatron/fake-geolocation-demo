@@ -114,6 +114,7 @@ it("plays a journey with linearly interpolated positions", () => {
       ),
     },
   });
+  expect(events).toHaveLength(5);
 });
 
 it("can be paused", () => {
@@ -199,4 +200,46 @@ it("can be paused", () => {
       ),
     },
   });
+  expect(events).toHaveLength(5);
+});
+
+it("can seek to a specific time", () => {
+  const player = createLerpPlayer(journey);
+  const events: JourneyPlayerEvent[] = [];
+  unsubscribe = player.subscribe((event) => {
+    events.push(event);
+  });
+  player.seek(300);
+  player.play();
+  vi.runAllTimers();
+
+  expect(events[0]).toEqual({
+    type: "POSITION",
+    details: {
+      position: createPosition(
+        createCoordinates({
+          longitude: 170,
+          latitude: 85,
+          heading: 0,
+          speed: expect.closeTo(5577044.531996764, 10) as number,
+        }),
+        START_TIME,
+      ),
+    },
+  });
+  expect(events[1]).toEqual({
+    type: "POSITION",
+    details: {
+      position: createPosition(
+        createCoordinates({
+          longitude: 70,
+          latitude: 90,
+          heading: NaN,
+          speed: 0,
+        }),
+        START_TIME + 100,
+      ),
+    },
+  });
+  expect(events).toHaveLength(2);
 });

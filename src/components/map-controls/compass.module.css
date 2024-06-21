@@ -30,6 +30,9 @@
   text-shadow: 0 0 var(--size-3) var(--gray-6);
   z-index: 1;
 }
+.compass:not([data-available="true"])::after {
+  content: "⋯";
+}
 
 .compass .ring {
   grid-area: cell;
@@ -37,10 +40,16 @@
   height: 100%;
   transform: rotate(calc(var(--bearing) * -1));
 }
+.compass:not([data-available="true"]) .ring {
+  opacity: 0.5;
+}
 
 .compass .pointer {
   grid-area: cell;
   width: 100%;
   height: 100%;
   transform: rotate(calc(var(--heading) - var(--bearing)));
+}
+.compass:not([data-available="true"]) .pointer {
+  display: none;
 }
