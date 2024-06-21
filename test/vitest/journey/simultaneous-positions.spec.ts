@@ -1,6 +1,6 @@
+import { createCoordinates } from "fake-geolocation";
 import { describe, expect, it } from "vitest";
 import { createJourney } from "../../../src/journey";
-import { createCoordinates } from "./util";
 
 describe("when two positions occur at the exact same time", () => {
   const journey = createJourney(

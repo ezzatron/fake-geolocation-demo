@@ -1,3 +1,4 @@
+import { createCoordinates } from "fake-geolocation";
 import type { Feature, GeoJsonProperties, LineString, Position } from "geojson";
 import {
   apply,
@@ -487,15 +488,11 @@ export function coordinatesFromGeoJSONPosition([
   latitude,
   altitude,
 ]: Position): GeolocationCoordinates {
-  return {
+  return createCoordinates({
     longitude,
     latitude,
-    altitude: altitude ?? null,
-    accuracy: 0,
-    altitudeAccuracy: altitude == null ? null : 0,
-    heading: null,
-    speed: null,
-  };
+    altitude,
+  });
 }
 
 export function geoJSONPositionFromCoordinates({

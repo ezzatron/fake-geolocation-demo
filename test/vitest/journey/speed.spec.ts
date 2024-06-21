@@ -1,6 +1,6 @@
+import { createCoordinates } from "fake-geolocation";
 import { expect, it } from "vitest";
 import { createJourney, lerpPosition } from "../../../src/journey";
-import { createCoordinates } from "./util";
 
 const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;

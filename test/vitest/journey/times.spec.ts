@@ -1,6 +1,6 @@
+import { createCoordinates } from "fake-geolocation";
 import { expect, it } from "vitest";
 import { createJourney } from "../../../src/journey";
-import { createCoordinates } from "./util";
 
 const journey = createJourney(
   {
