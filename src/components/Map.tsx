@@ -47,7 +47,7 @@ export default class Map extends Component<Props> {
         ],
         bearing: this.props.position.coords.heading ?? 0,
         pitch: 60,
-        zoom: 17,
+        zoom: 18,
       });
     }, 100);
 
