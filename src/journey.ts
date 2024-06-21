@@ -1,4 +1,4 @@
-import { createCoordinates } from "fake-geolocation";
+import { createCoordinates, createPosition } from "fake-geolocation";
 import type { Feature, GeoJsonProperties, LineString, Position } from "geojson";
 import {
   apply,
@@ -20,6 +20,7 @@ import {
 // TODO: Altimeter and compass
 // TODO: Dynamic journey via geocoding inputs
 // TODO: Fake accuracy from API journeys
+// TODO: Display travel mode from API-based journeys
 
 export type AtLeastTwoPositions = [
   GeolocationPosition,
@@ -262,7 +263,7 @@ export function lerpPosition(
   const az = Math.atan2(east, north);
   const dist = norm(d);
 
-  return {
+  return createCoordinates({
     longitude: degrees(lon),
     latitude: degrees(lat),
     accuracy: lerp(ca.accuracy, cb.accuracy, t),
@@ -270,7 +271,7 @@ export function lerpPosition(
     altitudeAccuracy: lerpNullable(ca.altitudeAccuracy, cb.altitudeAccuracy, t),
     heading: (degrees(az) + 360) % 360,
     speed: dist / ((b.timestamp - a.timestamp) / 1000),
-  };
+  });
 }
 
 function lerp(a: number, b: number, t: number): number {
@@ -503,4 +504,92 @@ export function geoJSONPositionFromCoordinates({
   return altitude == null
     ? [longitude, latitude]
     : [longitude, latitude, altitude];
+}
+
+export type JourneyPlayer = {
+  play: () => void;
+  pause: () => void;
+  subscribe: (subscriber: JourneyPlayerSubscriber) => Unsubscribe;
+};
+
+export type JourneyPlayerSubscriber = (event: JourneyPlayerEvent) => void;
+export type JourneyPlayerEvent = object;
+export type Unsubscribe = () => void;
+
+export function createLerpPlayer(journey: Journey): JourneyPlayer {
+  const subscribers = new Set<JourneyPlayerSubscriber>();
+
+  // The frequency at which the player ticks
+  const tickDuration = 100;
+  // The clock time at which the last tick occurred
+  let tickTime = 0;
+  // The time until the next tick
+  let tickDelay = 0;
+  // The timeout ID of the next tick
+  let tickTimeout: ReturnType<typeof setTimeout> | undefined;
+  // The time offset into the journey
+  let offsetTime = 0;
+
+  return {
+    play() {
+      // If already playing, do nothing
+      if (!tickTimeout) scheduleTick();
+    },
+
+    pause() {
+      // If already paused, do nothing
+      if (!tickTimeout) return;
+
+      const elapsed = Date.now() - tickTime;
+      offsetTime += elapsed;
+      tickDelay -= elapsed;
+
+      // Pause the player by clearing the tick timeout
+      clearTimeout(tickTimeout);
+      tickTimeout = undefined;
+    },
+
+    subscribe(subscriber) {
+      subscribers.add(subscriber);
+
+      return () => {
+        subscribers.delete(subscriber);
+      };
+    },
+  };
+
+  function scheduleTick() {
+    tickTimeout = setTimeout(() => {
+      offsetTime += tickDelay;
+      tickDelay = tickDuration;
+
+      if (offsetTime >= journey.duration) {
+        offsetTime = journey.duration;
+      } else {
+        scheduleTick();
+      }
+
+      dispatchPosition((tickTime = Date.now()));
+    }, tickDelay);
+  }
+
+  function dispatchPosition(time: number) {
+    const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
+    const coords = lerpPosition(a, b, t);
+
+    dispatch(subscribers, {
+      type: "POSITION",
+      details: { position: createPosition(coords, time) },
+    });
+  }
+}
+
+function dispatch<T>(subscribers: Set<(event: T) => void>, event: T) {
+  for (const subscriber of subscribers) {
+    try {
+      subscriber(event);
+    } catch {
+      // Deliberately ignored
+    }
+  }
 }
