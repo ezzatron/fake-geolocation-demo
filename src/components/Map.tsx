@@ -23,8 +23,8 @@ const EMPTY_GEOJSON: FeatureCollection<Geometry> = {
 type Props = {
   mapboxToken: string;
   bounds: [number, number, number, number];
-  position: GeolocationPosition | undefined;
-  route: Feature<LineString> | undefined;
+  position?: GeolocationPosition;
+  route: Feature<LineString>;
 };
 
 const fitBoundsOptions = { padding: 64 };
