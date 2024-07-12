@@ -507,6 +507,10 @@ export function geoJSONPositionFromCoordinates({
 }
 
 export type JourneyPlayer = {
+  journey: Journey;
+
+  readonly isPaused: boolean;
+
   play: () => void;
   pause: () => void;
   seek: (toOffsetTime: number) => void;
@@ -515,8 +519,22 @@ export type JourneyPlayer = {
 };
 
 export type JourneyPlayerSubscriber = (event: JourneyPlayerEvent) => void;
-export type JourneyPlayerEvent = JourneyPlayerPositionEvent;
 export type Unsubscribe = () => void;
+
+export type JourneyPlayerEvent =
+  | JourneyPlayerPlayEvent
+  | JourneyPlayerPauseEvent
+  | JourneyPlayerPositionEvent;
+
+export type JourneyPlayerPlayEvent = {
+  type: "PLAY";
+  details: object;
+};
+
+export type JourneyPlayerPauseEvent = {
+  type: "PAUSE";
+  details: object;
+};
 
 export type JourneyPlayerPositionEvent = {
   type: "POSITION";
@@ -540,6 +558,12 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
   let offsetTime = 0;
 
   return {
+    journey,
+
+    get isPaused() {
+      return !tickTimeout;
+    },
+
     play,
     pause,
     seek,
@@ -557,7 +581,10 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
     tickTime = Date.now();
 
     // If already playing, do nothing
-    if (!tickTimeout) scheduleTick();
+    if (tickTimeout) return;
+
+    scheduleTick();
+    dispatchPlay();
   }
 
   function pause() {
@@ -571,6 +598,8 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
     // Pause the player by clearing the tick timeout
     clearTimeout(tickTimeout);
     tickTimeout = undefined;
+
+    dispatchPause();
   }
 
   function seek(toOffsetTime: number) {
@@ -600,23 +629,45 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
     }, tickDelay);
   }
 
+  function dispatchPlay() {
+    dispatch(
+      subscribers,
+      (): JourneyPlayerPlayEvent => ({ type: "PLAY", details: {} }),
+    );
+  }
+
+  function dispatchPause() {
+    dispatch(
+      subscribers,
+      (): JourneyPlayerPauseEvent => ({ type: "PAUSE", details: {} }),
+    );
+  }
+
   function dispatchPosition(time: number) {
     const [a, b, t] = journey.segmentAtOffsetTime(offsetTime);
     const coords = lerpPosition(a, b, t);
 
-    dispatch(subscribers, {
-      type: "POSITION",
-      details: { position: createPosition(coords, time) },
-    });
+    dispatch(
+      subscribers,
+      (): JourneyPlayerPositionEvent => ({
+        type: "POSITION",
+        details: { position: createPosition(coords, time) },
+      }),
+    );
   }
 }
 
-function dispatch<T>(subscribers: Set<(event: T) => void>, event: T) {
+function dispatch<T>(
+  subscribers: Set<(event: T) => void>,
+  createEvent: () => T,
+) {
   for (const subscriber of subscribers) {
     try {
-      subscriber(event);
-    } catch {
-      // Deliberately ignored
+      subscriber(createEvent());
+    } catch (error) {
+      setTimeout(() => {
+        throw error;
+      }, 0);
     }
   }
 }

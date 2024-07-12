@@ -1,0 +1,48 @@
+.player {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  bottom: var(--size-inset-vertical);
+  /* negative size balances visual padding with circular controls */
+  left: calc(var(--size-inset-horizontal) - var(--size-1));
+  right: calc(var(--size-inset-horizontal) - var(--size-1));
+  height: var(--size-player-height);
+  border-radius: var(--radius-2);
+  padding-inline: var(--size-1);
+  background-color: var(--gray-10);
+  color: white;
+}
+
+.player button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  height: 100%;
+  padding: 0 calc(var(--size-padding-control) / 2);
+  transition: transform 0.2s;
+  display: grid;
+  place-items: center;
+  grid-template-areas: cell;
+}
+.player button > * {
+  grid-area: cell;
+  height: 100%;
+}
+.player button:hover {
+  color: var(--blue-4);
+}
+.player button:active {
+  transform: scale(0.9);
+}
+
+.play,
+.pause {
+  display: none;
+}
+.playPause[data-paused="true"] .play {
+  display: grid;
+}
+.playPause:not([data-paused="true"]) .pause {
+  display: grid;
+}

@@ -1,36 +1,23 @@
 .map {
-  /* balance safe area padding */
-  --safe-area-horizontal: max(
-    env(safe-area-inset-left),
-    env(safe-area-inset-right)
-  );
-  --safe-area-vertical: max(
-    env(safe-area-inset-top),
-    env(safe-area-inset-bottom)
-  );
-
-  --size-padding-horizontal: max(var(--size-5), var(--safe-area-horizontal));
-  --size-padding-vertical: max(var(--size-5), var(--safe-area-vertical));
-
   height: 100dvh;
 }
 
 /* paddings for controls that are safe area aware */
 .map :global(.mapboxgl-ctrl-top-left) {
-  margin-top: var(--size-padding-vertical);
-  margin-left: var(--size-padding-horizontal);
+  margin-left: var(--size-control-inset-horizontal);
+  margin-top: var(--size-control-inset-top);
 }
 .map :global(.mapboxgl-ctrl-top-right) {
-  margin-top: var(--size-padding-vertical);
-  margin-right: var(--size-padding-horizontal);
+  margin-right: var(--size-control-inset-horizontal);
+  margin-top: var(--size-control-inset-top);
 }
 .map :global(.mapboxgl-ctrl-bottom-right) {
-  margin-right: var(--size-padding-horizontal);
-  margin-bottom: var(--size-padding-vertical);
+  margin-right: var(--size-control-inset-horizontal);
+  margin-bottom: var(--size-control-inset-bottom);
 }
 .map :global(.mapboxgl-ctrl-bottom-left) {
-  margin-bottom: var(--size-padding-vertical);
-  margin-left: var(--size-padding-horizontal);
+  margin-left: var(--size-control-inset-horizontal);
+  margin-bottom: var(--size-control-inset-bottom);
 }
 .map
   :global(
@@ -57,4 +44,8 @@
       .mapboxgl-ctrl:last-child
   ) {
   margin-bottom: 0;
+}
+
+.map :global(.mapboxgl-ctrl.mapboxgl-ctrl-attrib) {
+  margin-top: inherit;
 }
