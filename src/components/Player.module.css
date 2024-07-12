@@ -8,7 +8,8 @@
   right: calc(var(--size-inset-horizontal) - var(--size-1));
   height: var(--size-player-height);
   border-radius: var(--radius-2);
-  padding-inline: var(--size-1);
+  padding-left: var(--size-1);
+  padding-right: var(--size-3);
   background-color: var(--gray-10);
   color: white;
 }
@@ -45,4 +46,8 @@
 }
 .playPause:not([data-paused="true"]) .pause {
   display: grid;
+}
+
+.scrubber {
+  width: 100%;
 }
