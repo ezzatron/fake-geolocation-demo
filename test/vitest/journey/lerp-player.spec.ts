@@ -44,7 +44,10 @@ it("plays a journey with linearly interpolated positions", () => {
   player.play();
   vi.runAllTimers();
 
-  expect(events[0]).toEqual({
+  let idx = 0;
+
+  expect(events[idx++]).toEqual({ type: "PLAY", details: {} });
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -58,7 +61,7 @@ it("plays a journey with linearly interpolated positions", () => {
       ),
     },
   });
-  expect(events[1]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -72,7 +75,7 @@ it("plays a journey with linearly interpolated positions", () => {
       ),
     },
   });
-  expect(events[2]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -86,7 +89,7 @@ it("plays a journey with linearly interpolated positions", () => {
       ),
     },
   });
-  expect(events[3]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -100,7 +103,7 @@ it("plays a journey with linearly interpolated positions", () => {
       ),
     },
   });
-  expect(events[4]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -114,7 +117,7 @@ it("plays a journey with linearly interpolated positions", () => {
       ),
     },
   });
-  expect(events).toHaveLength(5);
+  expect(events).toHaveLength(6);
 });
 
 it("can be paused", () => {
@@ -123,14 +126,26 @@ it("can be paused", () => {
   unsubscribe = player.subscribe((event) => {
     events.push(event);
   });
+
+  expect(player.isPaused).toBe(true);
+
   player.play();
   vi.advanceTimersByTime(50);
+
+  expect(player.isPaused).toBe(false);
+
   player.pause();
   vi.advanceTimersByTime(50);
+
+  expect(player.isPaused).toBe(true);
+
   player.play();
   vi.runAllTimers();
 
-  expect(events[0]).toEqual({
+  let idx = 0;
+
+  expect(events[idx++]).toEqual({ type: "PLAY", details: {} });
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -144,7 +159,9 @@ it("can be paused", () => {
       ),
     },
   });
-  expect(events[1]).toEqual({
+  expect(events[idx++]).toEqual({ type: "PAUSE", details: {} });
+  expect(events[idx++]).toEqual({ type: "PLAY", details: {} });
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -158,7 +175,7 @@ it("can be paused", () => {
       ),
     },
   });
-  expect(events[2]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -172,7 +189,7 @@ it("can be paused", () => {
       ),
     },
   });
-  expect(events[3]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -186,7 +203,7 @@ it("can be paused", () => {
       ),
     },
   });
-  expect(events[4]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -200,7 +217,7 @@ it("can be paused", () => {
       ),
     },
   });
-  expect(events).toHaveLength(5);
+  expect(events).toHaveLength(8);
 });
 
 it("can seek to a specific time", () => {
@@ -213,7 +230,10 @@ it("can seek to a specific time", () => {
   player.play();
   vi.runAllTimers();
 
-  expect(events[0]).toEqual({
+  let idx = 0;
+
+  expect(events[idx++]).toEqual({ type: "PLAY", details: {} });
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -227,7 +247,7 @@ it("can seek to a specific time", () => {
       ),
     },
   });
-  expect(events[1]).toEqual({
+  expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
       position: createPosition(
@@ -241,5 +261,5 @@ it("can seek to a specific time", () => {
       ),
     },
   });
-  expect(events).toHaveLength(2);
+  expect(events).toHaveLength(3);
 });

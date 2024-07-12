@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 import CompassPointer from "../components/CompassPointer";
 import CompassRing from "../components/CompassRing";
 import Map from "../components/Map";
+import MapContainer from "../components/MapContainer";
+import Player from "../components/Player";
 import googleRoutesDrivingJSON from "../google-routes-driving.json";
 import googleRoutesTransitJSON from "../google-routes-transit.json";
 import {
@@ -28,6 +30,7 @@ import {
   type GeoJSONJourney,
   type GoogleRoute,
   type Journey,
+  type JourneyPlayer,
   type MapboxRoute,
 } from "../journey";
 import geoJSON from "../journey.json";
@@ -95,6 +98,7 @@ export default function Demo({
 }: Props) {
   const [geolocation, setGeolocation] = useState<Geolocation>();
   const [permissions, setPermissions] = useState<Permissions>();
+  const [player, setPlayer] = useState<JourneyPlayer>();
   const [position, setPosition] = useState<GeolocationPosition>();
 
   useEffect(() => {
@@ -114,6 +118,8 @@ export default function Demo({
         user.jumpToCoordinates(event.details.position.coords);
       }
     });
+
+    setPlayer(player);
 
     player.seek(startTime);
     player.play();
@@ -166,14 +172,17 @@ export default function Demo({
         <RocketIcon id="rocket-icon" />
       </div>
 
-      {bounds && route && (
-        <Map
-          mapboxToken={mapboxToken}
-          bounds={bounds}
-          route={route}
-          position={position}
-        />
-      )}
+      <MapContainer>
+        {bounds && route && (
+          <Map
+            mapboxToken={mapboxToken}
+            bounds={bounds}
+            route={route}
+            position={position}
+          />
+        )}
+        {player && <Player player={player} />}
+      </MapContainer>
     </>
   );
 }
