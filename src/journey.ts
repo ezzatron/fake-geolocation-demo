@@ -612,7 +612,12 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
     tickTime = Date.now();
     tickDelay = 0;
     offsetTime = toOffsetTime;
-    if (wasPlaying) scheduleTick();
+
+    if (wasPlaying) {
+      scheduleTick();
+    } else {
+      dispatchPosition(tickTime);
+    }
   }
 
   function scheduleTick() {
