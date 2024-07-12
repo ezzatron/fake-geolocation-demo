@@ -236,13 +236,46 @@ it("can seek to a specific time", () => {
   unsubscribe = player.subscribe((event) => {
     events.push(event);
   });
-  player.seek(300);
+  player.seek(200);
+  vi.advanceTimersByTime(25);
   player.play();
+  vi.advanceTimersByTime(25);
+  player.seek(300);
   vi.runAllTimers();
 
   let idx = 0;
 
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 200,
+      position: createPosition(
+        createCoordinates({
+          longitude: 170,
+          latitude: 80,
+          heading: 0,
+          speed: expect.closeTo(5577044.531996764, 10) as number,
+        }),
+        START_TIME,
+      ),
+    },
+  });
   expect(events[idx++]).toEqual({ type: "PLAY", details: {} });
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 200,
+      position: createPosition(
+        createCoordinates({
+          longitude: 170,
+          latitude: 80,
+          heading: 0,
+          speed: expect.closeTo(5577044.531996764, 10) as number,
+        }),
+        START_TIME + 25,
+      ),
+    },
+  });
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
@@ -254,7 +287,7 @@ it("can seek to a specific time", () => {
           heading: 0,
           speed: expect.closeTo(5577044.531996764, 10) as number,
         }),
-        START_TIME,
+        START_TIME + 50,
       ),
     },
   });
@@ -269,9 +302,9 @@ it("can seek to a specific time", () => {
           heading: NaN,
           speed: 0,
         }),
-        START_TIME + 100,
+        START_TIME + 150,
       ),
     },
   });
-  expect(events).toHaveLength(3);
+  expect(events).toHaveLength(5);
 });
