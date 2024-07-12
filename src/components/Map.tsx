@@ -27,7 +27,9 @@ type Props = {
   route: Feature<LineString>;
 };
 
-const fitBoundsOptions = { padding: 64 };
+const fitBoundsOptions = {
+  padding: { top: 64, right: 64, bottom: 128, left: 64 },
+};
 
 export default class Map extends Component<Props> {
   constructor(props: Props) {
