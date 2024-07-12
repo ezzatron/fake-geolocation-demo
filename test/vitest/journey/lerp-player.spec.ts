@@ -50,6 +50,7 @@ it("plays a journey with linearly interpolated positions", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 0,
       position: createPosition(
         createCoordinates({
           longitude: -170,
@@ -64,6 +65,7 @@ it("plays a journey with linearly interpolated positions", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 100,
       position: createPosition(
         createCoordinates({
           longitude: expect.closeTo(-176.70495327058325, 10) as number,
@@ -78,6 +80,7 @@ it("plays a journey with linearly interpolated positions", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 200,
       position: createPosition(
         createCoordinates({
           longitude: 170,
@@ -92,6 +95,7 @@ it("plays a journey with linearly interpolated positions", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 300,
       position: createPosition(
         createCoordinates({
           longitude: 170,
@@ -106,6 +110,7 @@ it("plays a journey with linearly interpolated positions", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 400,
       position: createPosition(
         createCoordinates({
           longitude: 70,
@@ -148,6 +153,7 @@ it("can be paused", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 0,
       position: createPosition(
         createCoordinates({
           longitude: -170,
@@ -164,6 +170,7 @@ it("can be paused", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 100,
       position: createPosition(
         createCoordinates({
           longitude: expect.closeTo(-176.70495327058325, 10) as number,
@@ -178,6 +185,7 @@ it("can be paused", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 200,
       position: createPosition(
         createCoordinates({
           longitude: 170,
@@ -192,6 +200,7 @@ it("can be paused", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 300,
       position: createPosition(
         createCoordinates({
           longitude: 170,
@@ -206,6 +215,7 @@ it("can be paused", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 400,
       position: createPosition(
         createCoordinates({
           longitude: 70,
@@ -236,6 +246,7 @@ it("can seek to a specific time", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 300,
       position: createPosition(
         createCoordinates({
           longitude: 170,
@@ -250,6 +261,7 @@ it("can seek to a specific time", () => {
   expect(events[idx++]).toEqual({
     type: "POSITION",
     details: {
+      offsetTime: 400,
       position: createPosition(
         createCoordinates({
           longitude: 70,

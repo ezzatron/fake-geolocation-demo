@@ -539,6 +539,7 @@ export type JourneyPlayerPauseEvent = {
 export type JourneyPlayerPositionEvent = {
   type: "POSITION";
   details: {
+    offsetTime: number;
     position: GeolocationPosition;
   };
 };
@@ -651,7 +652,7 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
       subscribers,
       (): JourneyPlayerPositionEvent => ({
         type: "POSITION",
-        details: { position: createPosition(coords, time) },
+        details: { offsetTime, position: createPosition(coords, time) },
       }),
     );
   }
