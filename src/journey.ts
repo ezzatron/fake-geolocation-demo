@@ -43,6 +43,8 @@ export type Journey = {
   readonly chapters: JourneyChapter[];
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
+  chapterAtOffsetTime: (offsetTime: number) => JourneyChapter | undefined;
+  chapterAtTime: (time: number) => JourneyChapter | undefined;
   timeToOffsetTime: (time: number) => number;
   offsetTimeToTime: (offsetTime: number) => number;
 };
@@ -50,6 +52,7 @@ export type Journey = {
 export type JourneyChapter = {
   time: number;
   offsetTime: number;
+  duration: number;
   description: string;
 };
 export type JourneyChapterParameters = {
@@ -125,12 +128,29 @@ export function createJourney(params: CreateJourneyParameters): Journey {
 
   const chapters: JourneyChapter[] = [];
 
-  for (const chapter of params.chapters ?? []) {
-    chapters.push({
-      ...chapter,
-      offsetTime: chapter.time - startTime,
-    });
+  if (params.chapters) {
+    const paramsChapters = params.chapters.toSorted(
+      ({ time: a }, { time: b }) => a - b,
+    );
+
+    for (let i = 0; i < paramsChapters.length; ++i) {
+      const chapter = paramsChapters[i];
+
+      const nextChapter = paramsChapters[i + 1];
+      const nextTime = nextChapter?.time ?? endTime;
+
+      const offsetTime = chapter.time - startTime;
+      const duration = nextTime - chapter.time;
+
+      chapters.push({ ...chapter, offsetTime, duration });
+    }
   }
+
+  const chapterAtTime: Journey["chapterAtTime"] = (time: number) => {
+    for (const chapter of chapters) {
+      if (chapter.time >= time) return chapter;
+    }
+  };
 
   return {
     startTime,
@@ -149,6 +169,12 @@ export function createJourney(params: CreateJourneyParameters): Journey {
     },
 
     segmentAtTime,
+
+    chapterAtOffsetTime: (offsetTime) => {
+      return chapterAtTime(startTime + offsetTime);
+    },
+
+    chapterAtTime,
 
     timeToOffsetTime(time) {
       return time - startTime;
@@ -415,23 +441,19 @@ export function createJourneyFromMapboxRoute(
   }
 
   const steps = legs.flatMap(({ steps }) => steps);
-  const chaptersByTime: Record<number, JourneyChapterParameters> = {};
+  const chapters: JourneyChapterParameters[] = [];
   time = startTime;
 
-  for (let i = 0; i < steps.length; ++i) {
-    const {
-      name,
-      duration,
-      maneuver: { instruction },
-    } = steps[i];
+  for (const {
+    name,
+    duration,
+    maneuver: { instruction },
+  } of steps) {
+    if (duration === 0) continue;
 
-    chaptersByTime[time] = { time, description: name || instruction };
+    chapters.push({ time, description: name || instruction });
     time += duration * 1000;
   }
-
-  const chapters = Object.values(chaptersByTime).sort(
-    ({ time: a }, { time: b }) => a - b,
-  );
 
   return createJourney({ positions, chapters });
 }
@@ -560,7 +582,9 @@ export type JourneyPlayer = {
 
   play: () => void;
   pause: () => void;
+
   seek: (toOffsetTime: number) => void;
+  seekToNextChapter: () => void;
 
   subscribe: (subscriber: JourneyPlayerSubscriber) => Unsubscribe;
 };
@@ -615,6 +639,16 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
     play,
     pause,
     seek,
+
+    seekToNextChapter() {
+      const chapter = journey.chapterAtOffsetTime(offsetTime);
+
+      if (chapter) {
+        seek(chapter.time + chapter.duration);
+      } else {
+        seek(journey.endTime);
+      }
+    },
 
     subscribe(subscriber) {
       subscribers.add(subscriber);

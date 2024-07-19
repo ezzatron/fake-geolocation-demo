@@ -22,6 +22,24 @@ const journey = createJourney({
       timestamp: 400,
     },
   ],
+  chapters: [
+    {
+      description: "<chapter A>",
+      time: 0,
+    },
+    {
+      description: "<chapter B>",
+      time: 100,
+    },
+    {
+      description: "<chapter C>",
+      time: 300,
+    },
+    {
+      description: "<chapter D>",
+      time: 300,
+    },
+  ],
 });
 
 const START_TIME = 1000;
@@ -273,6 +291,85 @@ it("can seek to a specific time", () => {
           latitude: 80,
           heading: 0,
           speed: expect.closeTo(5577044.531996764, 10) as number,
+        }),
+        START_TIME + 25,
+      ),
+    },
+  });
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 300,
+      position: createPosition(
+        createCoordinates({
+          longitude: 170,
+          latitude: 85,
+          heading: 0,
+          speed: expect.closeTo(5577044.531996764, 10) as number,
+        }),
+        START_TIME + 50,
+      ),
+    },
+  });
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 400,
+      position: createPosition(
+        createCoordinates({
+          longitude: 70,
+          latitude: 90,
+          heading: NaN,
+          speed: 0,
+        }),
+        START_TIME + 150,
+      ),
+    },
+  });
+  expect(events).toHaveLength(5);
+});
+
+it("can seek to the next chapter", () => {
+  const player = createLerpPlayer(journey);
+  const events: JourneyPlayerEvent[] = [];
+  unsubscribe = player.subscribe((event) => {
+    events.push(event);
+  });
+  player.seekToNextChapter();
+  vi.advanceTimersByTime(25);
+  player.play();
+  vi.advanceTimersByTime(25);
+  player.seekToNextChapter();
+  vi.runAllTimers();
+
+  let idx = 0;
+
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 100,
+      position: createPosition(
+        createCoordinates({
+          longitude: expect.closeTo(-176.70495327058325, 10) as number,
+          latitude: expect.closeTo(75.19442943503938, 10) as number,
+          heading: expect.closeTo(342.05490135397787, 10) as number,
+          speed: expect.closeTo(6196540.175162239, 10) as number,
+        }),
+        START_TIME,
+      ),
+    },
+  });
+  expect(events[idx++]).toEqual({ type: "PLAY", details: {} });
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 100,
+      position: createPosition(
+        createCoordinates({
+          longitude: expect.closeTo(-176.70495327058325, 10) as number,
+          latitude: expect.closeTo(75.19442943503938, 10) as number,
+          heading: expect.closeTo(342.05490135397787, 10) as number,
+          speed: expect.closeTo(6196540.175162239, 10) as number,
         }),
         START_TIME + 25,
       ),

@@ -100,22 +100,24 @@ it("creates a journey from a Mapbox route", () => {
 it("creates chapters from the route steps", () => {
   const journey = createJourneyFromMapboxRoute(route, 1111);
 
-  expect(journey.chapters).toMatchObject([
+  expect(journey.chapters).toEqual([
     {
+      time: 1111,
       offsetTime: 0,
+      duration: 1111,
       description: "<step A>",
     },
     {
+      time: 2222,
       offsetTime: 1111,
+      duration: 2222,
       description: "<maneuver instruction B>",
     },
     {
+      time: 4444,
       offsetTime: 3333,
+      duration: 3333,
       description: "<step C>",
-    },
-    {
-      offsetTime: 6666,
-      description: "<step D>",
     },
   ]);
 });
