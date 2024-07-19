@@ -2,20 +2,22 @@ import { createCoordinates } from "fake-geolocation";
 import { expect, it } from "vitest";
 import { createJourney, lerpPosition } from "../../../src/journey";
 
-const journey = createJourney(
-  {
-    coords: createCoordinates({ longitude: -170, latitude: 70 }),
-    timestamp: 0,
-  },
-  {
-    coords: createCoordinates({ longitude: 170, latitude: 80 }),
-    timestamp: 50,
-  },
-  {
-    coords: createCoordinates({ longitude: 70, latitude: 90 }),
-    timestamp: 150,
-  },
-);
+const journey = createJourney({
+  positions: [
+    {
+      coords: createCoordinates({ longitude: -170, latitude: 70 }),
+      timestamp: 0,
+    },
+    {
+      coords: createCoordinates({ longitude: 170, latitude: 80 }),
+      timestamp: 50,
+    },
+    {
+      coords: createCoordinates({ longitude: 70, latitude: 90 }),
+      timestamp: 150,
+    },
+  ],
+});
 
 it.each([
   [-25, -170, 70],
