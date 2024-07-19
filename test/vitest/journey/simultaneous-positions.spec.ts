@@ -3,24 +3,26 @@ import { describe, expect, it } from "vitest";
 import { createJourney } from "../../../src/journey";
 
 describe("when two positions occur at the exact same time", () => {
-  const journey = createJourney(
-    {
-      coords: createCoordinates({ accuracy: 1 }),
-      timestamp: 0,
-    },
-    {
-      coords: createCoordinates({ accuracy: 2 }),
-      timestamp: 10,
-    },
-    {
-      coords: createCoordinates({ accuracy: 3 }),
-      timestamp: 10,
-    },
-    {
-      coords: createCoordinates({ accuracy: 4 }),
-      timestamp: 20,
-    },
-  );
+  const journey = createJourney({
+    positions: [
+      {
+        coords: createCoordinates({ accuracy: 1 }),
+        timestamp: 0,
+      },
+      {
+        coords: createCoordinates({ accuracy: 2 }),
+        timestamp: 10,
+      },
+      {
+        coords: createCoordinates({ accuracy: 3 }),
+        timestamp: 10,
+      },
+      {
+        coords: createCoordinates({ accuracy: 4 }),
+        timestamp: 20,
+      },
+    ],
+  });
 
   it("picks the first position before the overlapping time", () => {
     expect(journey.segmentAtOffsetTime(5)).toMatchObject([

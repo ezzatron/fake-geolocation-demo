@@ -7,20 +7,22 @@ import {
   type Unsubscribe,
 } from "../../../src/journey";
 
-const journey = createJourney(
-  {
-    coords: createCoordinates({ longitude: -170, latitude: 70 }),
-    timestamp: 0,
-  },
-  {
-    coords: createCoordinates({ longitude: 170, latitude: 80 }),
-    timestamp: 200,
-  },
-  {
-    coords: createCoordinates({ longitude: 70, latitude: 90 }),
-    timestamp: 400,
-  },
-);
+const journey = createJourney({
+  positions: [
+    {
+      coords: createCoordinates({ longitude: -170, latitude: 70 }),
+      timestamp: 0,
+    },
+    {
+      coords: createCoordinates({ longitude: 170, latitude: 80 }),
+      timestamp: 200,
+    },
+    {
+      coords: createCoordinates({ longitude: 70, latitude: 90 }),
+      timestamp: 400,
+    },
+  ],
+});
 
 const START_TIME = 1000;
 let unsubscribe: Unsubscribe | undefined;

@@ -2,16 +2,18 @@ import { createCoordinates } from "fake-geolocation";
 import { expect, it } from "vitest";
 import { createJourney } from "../../../src/journey";
 
-const journey = createJourney(
-  {
-    coords: createCoordinates({ accuracy: 10 }),
-    timestamp: 150,
-  },
-  {
-    coords: createCoordinates({ accuracy: 20 }),
-    timestamp: 200,
-  },
-);
+const journey = createJourney({
+  positions: [
+    {
+      coords: createCoordinates({ accuracy: 10 }),
+      timestamp: 150,
+    },
+    {
+      coords: createCoordinates({ accuracy: 20 }),
+      timestamp: 200,
+    },
+  ],
+});
 
 it("converts absolute time to offset time", () => {
   expect(journey.timeToOffsetTime(150)).toBe(0);

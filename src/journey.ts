@@ -40,10 +40,21 @@ export type Journey = {
   readonly positionTimes: number[];
   readonly positionOffsetTimes: number[];
   readonly segments: AtLeastOneSegment;
+  readonly chapters: JourneyChapter[];
   segmentAtOffsetTime: (offsetTime: number) => JourneySegmentWithT;
   segmentAtTime: (time: number) => JourneySegmentWithT;
   timeToOffsetTime: (time: number) => number;
   offsetTimeToTime: (offsetTime: number) => number;
+};
+
+export type JourneyChapter = {
+  time: number;
+  offsetTime: number;
+  description: string;
+};
+export type JourneyChapterParameters = {
+  time: number;
+  description: string;
 };
 
 export type JourneySegment = [a: GeolocationPosition, b: GeolocationPosition];
@@ -54,8 +65,15 @@ export type JourneySegmentWithT = [
   t: number,
 ];
 
-export function createJourney(...positions: AtLeastTwoPositions): Journey {
-  positions.sort(({ timestamp: a }, { timestamp: b }) => a - b);
+export type CreateJourneyParameters = {
+  positions: AtLeastTwoPositions;
+  chapters?: JourneyChapterParameters[];
+};
+
+export function createJourney(params: CreateJourneyParameters): Journey {
+  const positions = params.positions.toSorted(
+    ({ timestamp: a }, { timestamp: b }) => a - b,
+  ) as AtLeastTwoPositions;
 
   const count = positions.length;
   const startPosition = positions[0];
@@ -105,6 +123,15 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
     return [a, b, (time - a.timestamp) / (b.timestamp - a.timestamp)];
   };
 
+  const chapters: JourneyChapter[] = [];
+
+  for (const chapter of params.chapters ?? []) {
+    chapters.push({
+      ...chapter,
+      offsetTime: chapter.time - startTime,
+    });
+  }
+
   return {
     startTime,
     endTime,
@@ -115,6 +142,7 @@ export function createJourney(...positions: AtLeastTwoPositions): Journey {
     positionTimes,
     positionOffsetTimes,
     segments,
+    chapters,
 
     segmentAtOffsetTime: (offsetTime) => {
       return segmentAtTime(startTime + offsetTime);
@@ -318,12 +346,9 @@ export function createJourneyFromGeoJSON({
     });
   }
 
-  const a = positions.shift();
-  const b = positions.shift();
+  if (isAtLeastTwoPositions(positions)) return createJourney({ positions });
 
-  if (!a || !b) throw new Error("Not enough positions");
-
-  return createJourney(a, b, ...positions);
+  throw new Error("Not enough positions");
 }
 
 export function geoJSONFromPositions(
@@ -358,6 +383,13 @@ export type MapboxRoute = {
     annotation: {
       duration: number[];
     };
+    steps: {
+      name: string;
+      duration: number;
+      maneuver: {
+        instruction: string;
+      };
+    }[];
   }[];
 };
 
@@ -378,12 +410,30 @@ export function createJourneyFromMapboxRoute(
     time += (durations[i] ?? 0) * 1000;
   }
 
-  const a = positions.shift();
-  const b = positions.shift();
+  if (!isAtLeastTwoPositions(positions)) {
+    throw new Error("Not enough positions");
+  }
 
-  if (!a || !b) throw new Error("Not enough positions");
+  const steps = legs.flatMap(({ steps }) => steps);
+  const chaptersByTime: Record<number, JourneyChapterParameters> = {};
+  time = startTime;
 
-  return createJourney(a, b, ...positions);
+  for (let i = 0; i < steps.length; ++i) {
+    const {
+      name,
+      duration,
+      maneuver: { instruction },
+    } = steps[i];
+
+    chaptersByTime[time] = { time, description: name || instruction };
+    time += duration * 1000;
+  }
+
+  const chapters = Object.values(chaptersByTime).sort(
+    ({ time: a }, { time: b }) => a - b,
+  );
+
+  return createJourney({ positions, chapters });
 }
 
 export type GoogleRoute = {
@@ -476,12 +526,9 @@ export function createJourneyFromGoogleRoute(
     });
   }
 
-  const a = positions.shift();
-  const b = positions.shift();
+  if (isAtLeastTwoPositions(positions)) return createJourney({ positions });
 
-  if (!a || !b) throw new Error("Not enough positions");
-
-  return createJourney(a, b, ...positions);
+  throw new Error("Not enough positions");
 }
 
 export function coordinatesFromGeoJSONPosition([
@@ -676,4 +723,10 @@ function dispatch<T>(
       }, 0);
     }
   }
+}
+
+function isAtLeastTwoPositions(
+  positions: GeolocationPosition[],
+): positions is AtLeastTwoPositions {
+  return positions.length >= 2;
 }

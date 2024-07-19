@@ -10,11 +10,50 @@ const route: MapboxRoute = {
       annotation: {
         duration: [1.111, 2.222],
       },
+      steps: [
+        {
+          name: "<step A>",
+          duration: 1.111,
+          maneuver: {
+            instruction: "<maneuver instruction A>",
+          },
+        },
+        {
+          name: "",
+          duration: 2.222,
+          maneuver: {
+            instruction: "<maneuver instruction B>",
+          },
+        },
+        {
+          name: "<step C>",
+          duration: 0,
+          maneuver: {
+            instruction: "<maneuver instruction C>",
+          },
+        },
+      ],
     },
     {
       annotation: {
         duration: [3.333],
       },
+      steps: [
+        {
+          name: "<step C>",
+          duration: 3.333,
+          maneuver: {
+            instruction: "<maneuver instruction D>",
+          },
+        },
+        {
+          name: "<step D>",
+          duration: 0,
+          maneuver: {
+            instruction: "<maneuver instruction D>",
+          },
+        },
+      ],
     },
   ],
   geometry: {
@@ -58,6 +97,29 @@ it("creates a journey from a Mapbox route", () => {
   ]);
 });
 
+it("creates chapters from the route steps", () => {
+  const journey = createJourneyFromMapboxRoute(route, 1111);
+
+  expect(journey.chapters).toMatchObject([
+    {
+      offsetTime: 0,
+      description: "<step A>",
+    },
+    {
+      offsetTime: 1111,
+      description: "<maneuver instruction B>",
+    },
+    {
+      offsetTime: 3333,
+      description: "<step C>",
+    },
+    {
+      offsetTime: 6666,
+      description: "<step D>",
+    },
+  ]);
+});
+
 it("throws when there are not enough positions", () => {
   const route: MapboxRoute = {
     legs: [
@@ -65,6 +127,7 @@ it("throws when there are not enough positions", () => {
         annotation: {
           duration: [],
         },
+        steps: [],
       },
     ],
     geometry: {

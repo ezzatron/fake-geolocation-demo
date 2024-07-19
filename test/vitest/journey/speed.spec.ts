@@ -6,35 +6,37 @@ const ONE_MINUTE = 60 * 1000;
 const ONE_HOUR = 60 * ONE_MINUTE;
 const ONE_DAY = 24 * ONE_HOUR;
 
-const journey = createJourney(
-  {
-    coords: createCoordinates({
-      longitude: -170,
-      latitude: 70,
-      altitude: 0,
-      speed: 123,
-    }),
-    timestamp: 0,
-  },
-  {
-    coords: createCoordinates({
-      longitude: 170,
-      latitude: 80,
-      altitude: 500,
-      speed: 123,
-    }),
-    timestamp: ONE_HOUR,
-  },
-  {
-    coords: createCoordinates({
-      longitude: 70,
-      latitude: 90,
-      altitude: 0,
-      speed: 123,
-    }),
-    timestamp: ONE_DAY,
-  },
-);
+const journey = createJourney({
+  positions: [
+    {
+      coords: createCoordinates({
+        longitude: -170,
+        latitude: 70,
+        altitude: 0,
+        speed: 123,
+      }),
+      timestamp: 0,
+    },
+    {
+      coords: createCoordinates({
+        longitude: 170,
+        latitude: 80,
+        altitude: 500,
+        speed: 123,
+      }),
+      timestamp: ONE_HOUR,
+    },
+    {
+      coords: createCoordinates({
+        longitude: 70,
+        latitude: 90,
+        altitude: 0,
+        speed: 123,
+      }),
+      timestamp: ONE_DAY,
+    },
+  ],
+});
 
 it.each([
   [-ONE_HOUR, 0],
