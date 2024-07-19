@@ -673,9 +673,9 @@ export function createLerpPlayer(
       const chapter = journey.chapterAtOffsetTime(offsetTime);
 
       if (chapter) {
-        seek(chapter.time + chapter.duration);
+        seek(chapter.offsetTime + chapter.duration);
       } else {
-        seek(journey.endTime);
+        seek(journey.duration);
       }
     },
 
@@ -693,9 +693,9 @@ export function createLerpPlayer(
       }
 
       if (chapter) {
-        seek(chapter.time);
+        seek(chapter.offsetTime);
       } else {
-        seek(journey.startTime);
+        seek(0);
       }
     },
 

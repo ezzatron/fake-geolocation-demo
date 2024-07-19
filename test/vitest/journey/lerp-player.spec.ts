@@ -325,6 +325,84 @@ it("can seek to a specific time", () => {
   expect(events).toHaveLength(5);
 });
 
+it("can seek to the start and end of the journey", () => {
+  const player = createLerpPlayer(journey, 10000);
+  const events: JourneyPlayerEvent[] = [];
+  unsubscribe = player.subscribe((event) => {
+    events.push(event);
+  });
+  player.seek(journey.endTime);
+  player.play();
+  vi.advanceTimersByTime(10000);
+  player.seek(journey.startTime);
+  vi.advanceTimersByTime(10000);
+
+  let idx = 0;
+
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 40000,
+      position: createPosition(
+        createCoordinates({
+          longitude: 70,
+          latitude: 90,
+          heading: NaN,
+          speed: 0,
+        }),
+        START_TIME,
+      ),
+    },
+  });
+  expect(events[idx++]).toEqual({ type: "PLAY", details: {} });
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 40000,
+      position: createPosition(
+        createCoordinates({
+          longitude: 70,
+          latitude: 90,
+          heading: NaN,
+          speed: 0,
+        }),
+        START_TIME,
+      ),
+    },
+  });
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 0,
+      position: createPosition(
+        createCoordinates({
+          longitude: -170,
+          latitude: 70,
+          heading: expect.closeTo(342.05490135397787, 10) as number,
+          speed: expect.closeTo(61965.40175162239, 10) as number,
+        }),
+        START_TIME + 10000,
+      ),
+    },
+  });
+  expect(events[idx++]).toEqual({
+    type: "POSITION",
+    details: {
+      offsetTime: 10000,
+      position: createPosition(
+        createCoordinates({
+          longitude: expect.closeTo(-176.70495327058325, 10) as number,
+          latitude: expect.closeTo(75.19442943503938, 10) as number,
+          heading: expect.closeTo(342.05490135397787, 10) as number,
+          speed: expect.closeTo(61965.40175162239, 10) as number,
+        }),
+        START_TIME + 20000,
+      ),
+    },
+  });
+  expect(events).toHaveLength(5);
+});
+
 it("can seek to the next chapter", () => {
   const player = createLerpPlayer(journey, 10000);
   const events: JourneyPlayerEvent[] = [];
