@@ -57,6 +57,7 @@ async function directions(profile, stops, departAt) {
   url.searchParams.set("access_token", token);
   url.searchParams.set("geometries", "geojson");
   url.searchParams.set("overview", "full");
+  url.searchParams.set("steps", "true");
   url.searchParams.set("annotations", "duration");
   url.searchParams.set(
     "depart_at",
