@@ -1,4 +1,4 @@
-import { PauseIcon, PlayIcon } from "lucide-react";
+import { PauseIcon, PlayIcon, SkipForwardIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import throttle from "throttleit";
 import type { JourneyPlayer } from "../journey";
@@ -12,6 +12,7 @@ export default function Player({ player }: Props) {
   return (
     <div className={styles.player}>
       <PlayPauseButton player={player} />
+      <NextChapterButton player={player} />
       <Scrubber player={player} />
     </div>
   );
@@ -50,6 +51,20 @@ function PlayPauseButton({ player }: Props) {
       </div>
       <div aria-hidden className={styles.pause}>
         <PauseIcon />
+      </div>
+    </button>
+  );
+}
+
+function NextChapterButton({ player }: Props) {
+  return (
+    <button
+      aria-label="Next chapter"
+      title="Next chapter"
+      onClick={() => player.seekToNextChapter()}
+    >
+      <div aria-hidden>
+        <SkipForwardIcon />
       </div>
     </button>
   );
