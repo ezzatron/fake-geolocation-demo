@@ -42,12 +42,15 @@ export default class Map extends Component<Props> {
         return;
       }
 
+      let { heading } = this.props.position.coords;
+      if (heading == null || Number.isNaN(heading)) heading = 0;
+
       this.#map.easeTo({
         center: [
           this.props.position.coords.longitude,
           this.props.position.coords.latitude,
         ],
-        bearing: this.props.position.coords.heading ?? 0,
+        bearing: heading,
         pitch: 60,
         zoom: 18,
       });
