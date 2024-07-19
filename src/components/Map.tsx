@@ -112,7 +112,7 @@ export default class Map extends Component<Props> {
             "line-join": "round",
           },
           paint: {
-            "line-color": "#4882c5",
+            "line-color": "#1971c2",
             "line-width": 7,
           },
         });
