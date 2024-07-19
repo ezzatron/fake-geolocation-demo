@@ -20,6 +20,9 @@ const route: GoogleRoute = {
               ],
             },
           },
+          navigationInstruction: {
+            instructions: "<nav instructions A>",
+          },
         },
         {
           staticDuration: "0s",
@@ -29,6 +32,9 @@ const route: GoogleRoute = {
               coordinates: [],
             },
           },
+          navigationInstruction: {
+            instructions: "<nav instructions B>",
+          },
         },
         {
           staticDuration: "0s",
@@ -37,6 +43,9 @@ const route: GoogleRoute = {
               type: "LineString",
               coordinates: [[3, 33]],
             },
+          },
+          navigationInstruction: {
+            instructions: "<nav instructions C>",
           },
         },
         {
@@ -49,6 +58,9 @@ const route: GoogleRoute = {
                 [3, 33],
               ],
             },
+          },
+          navigationInstruction: {
+            instructions: "<nav instructions D>",
           },
         },
         {
@@ -61,6 +73,9 @@ const route: GoogleRoute = {
                 [4, 44],
               ],
             },
+          },
+          navigationInstruction: {
+            instructions: "<nav instructions E>",
           },
         },
       ],
@@ -77,6 +92,9 @@ const route: GoogleRoute = {
                 [5, 55],
               ],
             },
+          },
+          navigationInstruction: {
+            instructions: "<nav instructions F>",
           },
         },
       ],
@@ -135,6 +153,9 @@ it("throws when there are single-position steps with non-zero durations", () => 
                 type: "LineString",
                 coordinates: [[1, 11]],
               },
+            },
+            navigationInstruction: {
+              instructions: "<nav instructions A>",
             },
           },
         ],

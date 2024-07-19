@@ -5,11 +5,11 @@ if (!token) {
 
 const baseURL = new URL("https://routes.googleapis.com/");
 
-const travelMode = "TRANSIT";
+const travelMode = "DRIVE";
 const steps = [
   "White Castle, Webster Avenue, The Bronx, NY",
   "Five Guys, Hudson Street, Jersey City, NJ",
-  // "11 Madison Ave, New York, NY 10010, United States", // transit only allows 2 stops
+  "11 Madison Ave, New York, NY 10010, United States", // transit only allows 2 stops
 ];
 const departureTime = new Date(Date.now() + 60 * 1000);
 
@@ -30,7 +30,7 @@ async function directions(travelMode, stops, departureTime) {
       headers: {
         "X-Goog-Api-Key": token,
         "X-Goog-FieldMask":
-          "routes.legs.steps.staticDuration,routes.legs.steps.polyline",
+          "routes.legs.steps.staticDuration,routes.legs.steps.polyline,routes.legs.steps.navigationInstruction.instructions",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

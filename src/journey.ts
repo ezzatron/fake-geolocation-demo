@@ -469,6 +469,9 @@ export type GoogleRoute = {
       polyline: {
         geoJsonLinestring: LineString;
       };
+      navigationInstruction: {
+        instructions: string;
+      };
     }[];
   }[];
 };
