@@ -141,6 +141,31 @@ it("creates a journey from a Google Routes API route", () => {
   ]);
 });
 
+it("creates chapters from the route steps", () => {
+  const journey = createJourneyFromGoogleRoute(route, 1111);
+
+  expect(journey.chapters).toEqual([
+    {
+      time: 1111,
+      offsetTime: 0,
+      duration: 1111,
+      description: "<nav instructions A>",
+    },
+    {
+      time: 2222,
+      offsetTime: 1111,
+      duration: 2222,
+      description: "<nav instructions E>",
+    },
+    {
+      time: 4444,
+      offsetTime: 3333,
+      duration: 3333,
+      description: "<nav instructions F>",
+    },
+  ]);
+});
+
 it("throws when there are single-position steps with non-zero durations", () => {
   const route: GoogleRoute = {
     legs: [

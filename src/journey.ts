@@ -555,9 +555,28 @@ export function createJourneyFromGoogleRoute(
     });
   }
 
-  if (isAtLeastTwoPositions(positions)) return createJourney({ positions });
+  if (!isAtLeastTwoPositions(positions)) {
+    throw new Error("Not enough positions");
+  }
 
-  throw new Error("Not enough positions");
+  const chapters: JourneyChapterParameters[] = [];
+  time = startTime;
+
+  for (const { steps } of legs) {
+    for (const {
+      staticDuration,
+      navigationInstruction: { instructions },
+    } of steps) {
+      const duration = parseFloat(staticDuration) * 1000;
+
+      if (duration === 0) continue;
+
+      chapters.push({ time, description: instructions });
+      time += duration;
+    }
+  }
+
+  return createJourney({ positions, chapters });
 }
 
 export function coordinatesFromGeoJSONPosition([
