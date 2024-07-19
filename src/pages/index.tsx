@@ -63,7 +63,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   let { journey: journeyName, t: timeDescriptor } = context.query;
 
   if (typeof journeyName !== "string") journeyName = "mapbox";
-  if (typeof timeDescriptor !== "string") timeDescriptor = "fastest";
+  if (typeof timeDescriptor !== "string") timeDescriptor = "0s";
 
   const journey = journeyByName(journeyName);
   const bounds = boundingBox(...journey.positions);
