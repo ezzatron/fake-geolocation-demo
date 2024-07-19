@@ -147,8 +147,12 @@ export function createJourney(params: CreateJourneyParameters): Journey {
   }
 
   const chapterAtTime: Journey["chapterAtTime"] = (time: number) => {
+    if (time === endTime) return chapters[chapters.length - 1];
+
     for (const chapter of chapters) {
-      if (chapter.time >= time) return chapter;
+      const { time: startTime, duration } = chapter;
+
+      if (startTime <= time && time < startTime + duration) return chapter;
     }
   };
 
@@ -585,6 +589,7 @@ export type JourneyPlayer = {
 
   seek: (toOffsetTime: number) => void;
   seekToNextChapter: () => void;
+  seekToPreviousChapter: () => void;
 
   subscribe: (subscriber: JourneyPlayerSubscriber) => Unsubscribe;
 };
@@ -615,11 +620,13 @@ export type JourneyPlayerPositionEvent = {
   };
 };
 
-export function createLerpPlayer(journey: Journey): JourneyPlayer {
+export function createLerpPlayer(
+  journey: Journey,
+  // The frequency at which the player ticks
+  tickDuration: number = 100,
+): JourneyPlayer {
   const subscribers = new Set<JourneyPlayerSubscriber>();
 
-  // The frequency at which the player ticks
-  const tickDuration = 100;
   // The clock time at which the last tick occurred
   let tickTime = 0;
   // The time until the next tick
@@ -647,6 +654,26 @@ export function createLerpPlayer(journey: Journey): JourneyPlayer {
         seek(chapter.time + chapter.duration);
       } else {
         seek(journey.endTime);
+      }
+    },
+
+    seekToPreviousChapter() {
+      let chapter = journey.chapterAtOffsetTime(offsetTime);
+
+      // If close to the start of the chapter, act like the previous chapter
+      // is the current chapter.
+      if (chapter) {
+        const chapterOffsetTime = offsetTime - chapter.offsetTime;
+
+        if (chapterOffsetTime < 3000) {
+          chapter = journey.chapterAtTime(chapter.time - 1);
+        }
+      }
+
+      if (chapter) {
+        seek(chapter.time);
+      } else {
+        seek(journey.startTime);
       }
     },
 
