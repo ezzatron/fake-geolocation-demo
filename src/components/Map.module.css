@@ -1,6 +1,9 @@
 .map {
   height: 100dvh;
 }
+.map canvas {
+  outline: none !important;
+}
 
 /* paddings for controls that are safe area aware */
 .map :global(.mapboxgl-ctrl-top-left) {
