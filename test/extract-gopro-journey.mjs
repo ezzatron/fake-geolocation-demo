@@ -37,4 +37,12 @@ const telemetry = await goProTelemetry(GPMF, {
   smooth: false,
 });
 
+const { properties } = telemetry;
+const { AbsoluteUtcMicroSec } = properties;
+delete properties.device;
+delete properties.geoidHeight;
+delete properties.AbsoluteUtcMicroSec;
+delete properties.RelativeMicroSec;
+properties.coordinateProperties = { times: AbsoluteUtcMicroSec };
+
 console.log(JSON.stringify(telemetry));

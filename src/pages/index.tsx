@@ -19,6 +19,7 @@ import MapContainer from "../components/MapContainer";
 import Player from "../components/Player";
 import googleRoutesDrivingJSON from "../google-routes-driving.json";
 import googleRoutesTransitJSON from "../google-routes-transit.json";
+import goProJSON from "../gopro.json";
 import {
   boundingBox,
   createJourneyFromGeoJSON,
@@ -33,7 +34,6 @@ import {
   type JourneyPlayer,
   type MapboxRoute,
 } from "../journey";
-import geoJSON from "../journey.json";
 import mapboxDirectionsJSON from "../mapbox-directions.json";
 import styles from "./index.module.css";
 
@@ -197,8 +197,8 @@ function journeyByName(name: string): Journey {
       return createJourneyFromGoogleRoute(
         googleRoutesTransitJSON.routes[0] as GoogleRoute,
       );
-    case "geojson":
-      return createJourneyFromGeoJSON(geoJSON as GeoJSONJourney);
+    case "gopro":
+      return createJourneyFromGeoJSON(goProJSON as GeoJSONJourney);
   }
 
   return createJourneyFromMapboxRoute(
