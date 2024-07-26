@@ -1,3 +1,4 @@
+import goProTelemetry from "gopro-telemetry";
 import GPMFExtract from "gpmf-extract";
 import { createReadStream } from "node:fs";
 import { basename } from "node:path";
@@ -27,5 +28,13 @@ const GPMF = await GPMFExtract((file) => {
   stream.resume();
 });
 
-console.log("Length of data received:", GPMF.rawData.length);
-console.log("Framerate of data received:", 1 / GPMF.timing.frameDuration);
+const telemetry = await goProTelemetry(GPMF, {
+  decimalPlaces: 6,
+  disableInterpolation: true,
+  disableMerging: true,
+  preset: "geojson",
+  repeatSticky: false,
+  smooth: false,
+});
+
+console.log(JSON.stringify(telemetry));
