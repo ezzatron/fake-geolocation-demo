@@ -14,13 +14,17 @@ import {
   transpose,
 } from "nvector-geodesy";
 
-// TODO: Implement a "player" that can play back a journey
-//       Support seeking, looping, time scaling, jitter, disabling
-//       speed/altitude/heading, etc.
-// TODO: Altimeter and compass
-// TODO: Dynamic journey via geocoding inputs
-// TODO: Fake accuracy from API journeys
-// TODO: Display travel mode from API-based journeys
+// TODO:
+// - Looping?
+// - Time scaling?
+// - Jitter?
+// - Disabling speed/altitude/heading?
+// - Search inputs for journey
+// - Emulate real accuracy values
+// - Travel mode based on navigation instructions
+// - Overwrite navigator.geolocation and navigator.permissions
+// - Figure out interpolated vs. non-interpolated playback
+// - Extract better telemetry from GoPro videos
 
 export type AtLeastTwoPositions = [
   GeolocationPosition,
