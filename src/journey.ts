@@ -24,7 +24,6 @@ import {
 // - Travel mode based on navigation instructions
 // - Overwrite navigator.geolocation and navigator.permissions
 // - Figure out interpolated vs. non-interpolated playback
-// - Extract better telemetry from GoPro videos
 
 export type AtLeastTwoPositions = [
   GeolocationPosition,
