@@ -3,7 +3,7 @@
   "dependencies": {
     "@next/bundle-analyzer": "^14.0.0",
     "@turf/turf": "^6.5.0",
-    "fake-geolocation": "^0.8.1",
+    "fake-geolocation": "^0.13.2",
     "lucide-react": "^0.394.0",
     "mapbox-gl": "^3.0.0",
     "next": "^14.0.0",
