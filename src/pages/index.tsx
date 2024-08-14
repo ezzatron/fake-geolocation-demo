@@ -53,7 +53,9 @@ export default function Demo({ mapboxToken }: Props) {
       createWrappedAPIs({
         geolocation: navigator.geolocation,
         permissions: navigator.permissions,
-        handlePermissionRequest: () => "granted",
+        handleAccessRequest: async (dialog) => {
+          dialog.allow(true);
+        },
       });
 
     user.jumpToCoordinates(coords.current);
