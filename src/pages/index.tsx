@@ -54,7 +54,7 @@ export default function Demo({ mapboxToken }: Props) {
         geolocation: navigator.geolocation,
         permissions: navigator.permissions,
         handleAccessRequest: async (dialog) => {
-          dialog.allow(true);
+          dialog.allow();
         },
       });
 
