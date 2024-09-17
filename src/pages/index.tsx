@@ -1,5 +1,8 @@
 import { destination } from "@turf/turf";
-import { createWrappedAPIs } from "fake-geolocation";
+import {
+  createWrappedAPIs,
+  type GeolocationCoordinatesParameters,
+} from "fake-geolocation";
 import type { BBox } from "geojson";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
@@ -13,7 +16,7 @@ const bestAccuracy = 5;
 const worstAccuracy = 20;
 const speed = 1.5;
 
-const initCoords: GeolocationCoordinates = {
+const initCoords: GeolocationCoordinatesParameters = {
   longitude: (bbox[0] + bbox[2]) / 2,
   latitude: (bbox[1] + bbox[3]) / 2,
   altitude: 0,
@@ -46,7 +49,7 @@ export default function Demo({ mapboxToken }: Props) {
   const [permissions, setPermissions] = useState<Permissions>();
   const [position, setPosition] = useState<GeolocationPosition>();
 
-  const coords = useRef<GeolocationCoordinates>(initCoords);
+  const coords = useRef<GeolocationCoordinatesParameters>(initCoords);
 
   useEffect(() => {
     const { geolocation, isUsingSuppliedAPIs, permissions, selectAPIs, user } =
