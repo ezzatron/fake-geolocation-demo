@@ -4,7 +4,7 @@
   "dependencies": {
     "@next/bundle-analyzer": "^15.2.4",
     "@turf/turf": "^7.2.0",
-    "fake-geolocation": "^0.17.0",
+    "fake-geolocation": "^0.18.0",
     "mapbox-gl": "^3.11.0",
     "next": "^15.2.4",
     "open-props": "^1.7.14",

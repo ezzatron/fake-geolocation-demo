@@ -52,16 +52,15 @@ export default function Demo({ mapboxToken }: Props) {
   const coords = useRef<GeolocationCoordinatesParameters>(initCoords);
 
   useEffect(() => {
-    const { geolocation, isUsingSuppliedAPIs, permissions, selectAPIs, user } =
-      createWrappedAPIs({
-        geolocation: navigator.geolocation,
-        permissions: navigator.permissions,
-        userParams: {
-          handleAccessRequest: async (dialog) => {
-            dialog.allow();
-          },
+    const { geolocation, handle, permissions, user } = createWrappedAPIs({
+      geolocation: navigator.geolocation,
+      permissions: navigator.permissions,
+      userParams: {
+        handleAccessRequest: async (dialog) => {
+          dialog.allow();
         },
-      });
+      },
+    });
 
     user.jumpToCoordinates(coords.current);
 
@@ -104,7 +103,7 @@ export default function Demo({ mapboxToken }: Props) {
     }, 1000);
 
     const switchAPIsIntervalId = setInterval(() => {
-      selectAPIs(!isUsingSuppliedAPIs());
+      handle.selectAPIs(!handle.isUsingSuppliedAPIs());
     }, 15000);
 
     return () => {
