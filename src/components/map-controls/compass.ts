@@ -1,4 +1,5 @@
-import type { IControl, Map, MapMouseEvent, MapTouchEvent } from "mapbox-gl";
+import type { GeolocationPositionParameters } from "fake-geolocation";
+import type { IControl, Map } from "mapbox-gl";
 import styles from "./compass.module.css";
 
 export class Compass implements IControl {
@@ -31,7 +32,7 @@ export class Compass implements IControl {
     this.#container.parentElement?.removeChild(this.#container);
   }
 
-  setPosition(position: GeolocationPosition | undefined): void {
+  setPosition(position: GeolocationPositionParameters | undefined): void {
     this.#position = position;
     this.#update();
   }
@@ -99,6 +100,6 @@ export class Compass implements IControl {
 
   #container: HTMLDivElement;
   #map: Map | undefined;
-  #position: GeolocationPosition | undefined;
-  #onMove: (event: MapMouseEvent | MapTouchEvent) => void;
+  #position: GeolocationPositionParameters | undefined;
+  #onMove: () => void;
 }

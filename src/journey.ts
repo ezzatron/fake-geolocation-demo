@@ -1,4 +1,9 @@
-import { createCoordinates, createPosition } from "fake-geolocation";
+import {
+  createCoordinates,
+  createPosition,
+  type GeolocationCoordinatesParameters,
+  type GeolocationPositionParameters,
+} from "fake-geolocation";
 import type { Feature, GeoJsonProperties, LineString, Position } from "geojson";
 import {
   apply,
@@ -26,9 +31,9 @@ import {
 // - Figure out interpolated vs. non-interpolated playback
 
 export type AtLeastTwoPositions = [
-  GeolocationPosition,
-  GeolocationPosition,
-  ...GeolocationPosition[],
+  GeolocationPositionParameters,
+  GeolocationPositionParameters,
+  ...GeolocationPositionParameters[],
 ];
 
 export type AtLeastOneSegment = [JourneySegment, ...JourneySegment[]];
@@ -38,8 +43,8 @@ export type Journey = {
   readonly endTime: number;
   readonly duration: number;
   readonly positions: AtLeastTwoPositions;
-  readonly startPosition: GeolocationPosition;
-  readonly endPosition: GeolocationPosition;
+  readonly startPosition: GeolocationPositionParameters;
+  readonly endPosition: GeolocationPositionParameters;
   readonly positionTimes: number[];
   readonly positionOffsetTimes: number[];
   readonly segments: AtLeastOneSegment;
@@ -63,11 +68,14 @@ export type JourneyChapterParameters = {
   description: string;
 };
 
-export type JourneySegment = [a: GeolocationPosition, b: GeolocationPosition];
+export type JourneySegment = [
+  a: GeolocationPositionParameters,
+  b: GeolocationPositionParameters,
+];
 
 export type JourneySegmentWithT = [
-  a: GeolocationPosition,
-  b: GeolocationPosition,
+  a: GeolocationPositionParameters,
+  b: GeolocationPositionParameters,
   t: number,
 ];
 
@@ -256,8 +264,8 @@ export function findFastestSegment(
 }
 
 export function coordinateDistance(
-  a: GeolocationCoordinates,
-  b: GeolocationCoordinates,
+  a: GeolocationCoordinatesParameters,
+  b: GeolocationCoordinatesParameters,
 ): number {
   return norm(
     delta(
@@ -284,8 +292,8 @@ export function geoJSONPositionDistance(
 }
 
 export function coordinateSpeed(
-  a: GeolocationPosition,
-  b: GeolocationPosition,
+  a: GeolocationPositionParameters,
+  b: GeolocationPositionParameters,
 ): number {
   return (
     coordinateDistance(a.coords, b.coords) /
@@ -294,10 +302,10 @@ export function coordinateSpeed(
 }
 
 export function lerpPosition(
-  a: GeolocationPosition,
-  b: GeolocationPosition,
+  a: GeolocationPositionParameters,
+  b: GeolocationPositionParameters,
   t: number,
-): GeolocationCoordinates {
+): GeolocationCoordinatesParameters {
   const ca = a.coords;
   const cb = b.coords;
 
@@ -365,7 +373,7 @@ export function createJourneyFromGeoJSON({
     coordinateProperties: { times },
   },
 }: GeoJSONJourney): Journey {
-  const positions: GeolocationPosition[] = [];
+  const positions: GeolocationPositionParameters[] = [];
 
   for (let i = 0; i < coordinates.length; ++i) {
     const time = times[i];
@@ -431,7 +439,7 @@ export function createJourneyFromMapboxRoute(
   startTime: number = 0,
 ): Journey {
   const durations = legs.flatMap(({ annotation: { duration } }) => duration);
-  const positions: GeolocationPosition[] = [];
+  const positions: GeolocationPositionParameters[] = [];
   let time = startTime;
 
   for (let i = 0; i < coordinates.length; ++i) {
@@ -483,7 +491,7 @@ export function createJourneyFromGoogleRoute(
   { legs }: GoogleRoute,
   startTime: number = 0,
 ): Journey {
-  const positions: GeolocationPosition[] = [];
+  const positions: GeolocationPositionParameters[] = [];
   let time = startTime;
   let final: Position | undefined;
 
@@ -586,7 +594,7 @@ export function coordinatesFromGeoJSONPosition([
   longitude,
   latitude,
   altitude,
-]: Position): GeolocationCoordinates {
+]: Position): GeolocationCoordinatesParameters {
   return createCoordinates({
     longitude,
     latitude,
@@ -598,7 +606,7 @@ export function geoJSONPositionFromCoordinates({
   longitude,
   latitude,
   altitude,
-}: GeolocationCoordinates): Position {
+}: GeolocationCoordinatesParameters): Position {
   return altitude == null
     ? [longitude, latitude]
     : [longitude, latitude, altitude];
@@ -641,7 +649,7 @@ export type JourneyPlayerPositionEvent = {
   type: "POSITION";
   details: {
     offsetTime: number;
-    position: GeolocationPosition;
+    position: GeolocationPositionParameters;
   };
 };
 
@@ -812,7 +820,7 @@ function dispatch<T>(
 }
 
 function isAtLeastTwoPositions(
-  positions: GeolocationPosition[],
+  positions: GeolocationPositionParameters[],
 ): positions is AtLeastTwoPositions {
   return positions.length >= 2;
 }
