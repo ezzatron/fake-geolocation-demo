@@ -56,8 +56,10 @@ export default function Demo({ mapboxToken }: Props) {
       createWrappedAPIs({
         geolocation: navigator.geolocation,
         permissions: navigator.permissions,
-        handleAccessRequest: async (dialog) => {
-          dialog.allow();
+        userParams: {
+          handleAccessRequest: async (dialog) => {
+            dialog.allow();
+          },
         },
       });
 
