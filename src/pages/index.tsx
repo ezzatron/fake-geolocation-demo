@@ -105,8 +105,11 @@ export default function Demo({
     const { geolocation, permissions, user } = createWrappedAPIs({
       geolocation: navigator.geolocation,
       permissions: navigator.permissions,
-      handleAccessRequest: async (dialog) => {
-        dialog.allow(true);
+      userParams: {
+        handleAccessRequest: async (dialog) => {
+          dialog.remember(true);
+          dialog.allow();
+        },
       },
     });
 
