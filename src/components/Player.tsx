@@ -41,7 +41,11 @@ function PlayPauseButton({ player }: Props) {
   }, [player]);
 
   function handleClick() {
-    player.isPaused ? player.play() : player.pause();
+    if (player.isPaused) {
+      player.play();
+    } else {
+      player.pause();
+    }
   }
 
   return (
