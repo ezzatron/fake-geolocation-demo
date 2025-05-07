@@ -95,7 +95,7 @@ function NextChapterButton({ player }: Props) {
 }
 
 function Scrubber({ player }: Props) {
-  const abortRef = useRef<AbortController | undefined>();
+  const abortRef = useRef<AbortController | undefined>(undefined);
   const setInput = useCallback(
     (input: HTMLInputElement | null) => {
       abortRef.current?.abort();

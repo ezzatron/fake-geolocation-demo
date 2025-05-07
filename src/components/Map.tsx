@@ -142,7 +142,7 @@ export default class Map extends Component<Props> {
           if (this.#accuracySource) return;
 
           const source = map.getSource("accuracy");
-          if (source.type !== "geojson") return;
+          if (source?.type !== "geojson") return;
 
           this.#accuracySource = source;
         }
@@ -151,7 +151,7 @@ export default class Map extends Component<Props> {
           if (this.#positionSource) return;
 
           const source = map.getSource("position");
-          if (source.type !== "geojson") return;
+          if (source?.type !== "geojson") return;
 
           this.#positionSource = source;
         }
