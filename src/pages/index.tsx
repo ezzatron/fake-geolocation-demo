@@ -64,6 +64,7 @@ export default function Demo({ mapboxToken }: Props) {
 
     user.jumpToCoordinates(coords.current);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGeolocation(geolocation);
     setPermissions(permissions);
 
