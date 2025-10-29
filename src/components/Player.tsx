@@ -29,6 +29,7 @@ function PlayPauseButton({ player }: Props) {
   const label = isPaused ? "Play" : "Pause";
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsPaused(player.isPaused);
 
     return player.subscribe(({ type }) => {

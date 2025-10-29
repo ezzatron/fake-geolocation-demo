@@ -113,6 +113,7 @@ export default function Demo({
       },
     });
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGeolocation(geolocation);
     setPermissions(permissions);
 
