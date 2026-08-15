@@ -7,7 +7,7 @@ CHANGELOG_TAG_URL_PREFIX := https://github.com/ezzatron/fake-geolocation-demo/re
 -include .makefiles/pkg/js/v1/with-next.mk
 
 .makefiles/%:
-	@curl -sfL https://makefiles.dev/v1 | bash /dev/stdin "$@"
+	@curl -sfL https://makefiles.dev/v1 | bash -s -- "$@"
 
 ################################################################################
 
