@@ -11,6 +11,10 @@ export default createConfig({
     defaultLocale: "en-US",
     locales: ["en-US"],
   },
+
+  experimental: {
+    useTypeScriptCli: false,
+  },
 });
 
 function createConfig(config: NextConfig): NextConfig {
