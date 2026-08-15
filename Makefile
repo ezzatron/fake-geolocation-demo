@@ -1,4 +1,5 @@
 CHANGELOG_TAG_URL_PREFIX := https://github.com/ezzatron/fake-geolocation-demo/releases/tag/
+JS_NPM_INSTALL_ARGS := --include=dev
 
 -include .makefiles/Makefile
 -include .makefiles/pkg/js/v1/Makefile
