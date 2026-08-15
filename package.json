@@ -1,6 +1,10 @@
 {
   "private": true,
   "type": "module",
+  "allowScripts": {
+    "msw": true,
+    "unrs-resolver": true
+  },
   "dependencies": {
     "@next/bundle-analyzer": "^16.0.1",
     "@turf/turf": "^7.2.0",
